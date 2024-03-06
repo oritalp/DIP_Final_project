@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 class Camera_API:
-    def _init_(self,video=False):
+    def __init__(self,video=False):
         current_script_dir = os.path.dirname(os.path.abspath(_file_))
 
         # Initialize camera
