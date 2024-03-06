@@ -4,15 +4,16 @@ import numpy as np
 from image_sample import Camera_API
 
 
-cap = cv2.VideoCapture(0)
-while(True):
-    ret, frame = cap.read()
+camera_api = Camera_API()
 
-    cv2.imshow('frame',frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+camera_api.open_camera()
+frame = camera_api.read_frame()
+camera_api.display_frame(frame)
+camera_api.close_display_window()
+camera_api.close_cameras()
 
-cap.release()
-cv2.destroyAllWindows()
+
+
+
 
 

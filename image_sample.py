@@ -3,7 +3,7 @@ import os
 import numpy as np
 class Camera_API:
     def __init__(self,video=False):
-        current_script_dir = os.path.dirname(os.path.abspath(_file_))
+        current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
         # Initialize camera
         if not video:
