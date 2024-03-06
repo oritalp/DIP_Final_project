@@ -13,3 +13,5 @@ while(True):
 
 cap.release()
 cv2.destroyAllWindows()
+
+print("ori is in the house")
