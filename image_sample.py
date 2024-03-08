@@ -1,6 +1,8 @@
 import cv2
 import os
 import numpy as np
+from pathlib import Path
+import matplotlib.pyplot as plt
 class Camera_API:
     def __init__(self,video=False):
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,8 +14,8 @@ class Camera_API:
 
         else:
             print("using video")
-            self.camara_xy_path = os.path.join(current_script_dir, "video_light", "vid1xy.mp4")
-            self.camara_yz_path = os.path.join(current_script_dir, "video_light", "vid1z.mp4")
+            self.camara_xy_path = os.path.join(current_script_dir, "video", "vid1xy.mp4")
+            self.camara_yz_path = os.path.join(current_script_dir, "video", "vid1z.mp4")
 
             #self.camara_xy_path = 1
             #self.camara_yz_path = 2
@@ -85,7 +87,13 @@ class Camera_API:
     def display_frame(self, frame, window_name='Camera Feed'):
         """Display a frame in a window"""
         cv2.imshow(window_name, frame)
-        cv2.waitKey(1)
+        cv2.waitKey(0)
+    
+    def save_frame(self, frame, save_path='frame.png'):
+        """saves a frame to a file in the images_taken directory"""
+        Path.mkdir(Path.cwd() / "images_taken" , parents=True, exist_ok=True)
+        # frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        plt.imsave( "images_taken/" + save_path, frame)
 
     def close_display_window(self, window_name='Camera Feed'):
         """Close the display window"""
