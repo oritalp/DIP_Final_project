@@ -14,7 +14,7 @@ from image_sample import Camera_API
 
 
 path = os.getcwd()
-image = cv2.imread(path+"/bord.jpg")
+image = cv2.imread(path+"/bord2.jpeg")
 
 # making a binary pictur
 lwr = np.array([0, 0, 0])
@@ -24,6 +24,16 @@ cv2.imshow("msk", msk)
 krn = cv2.getStructuringElement(cv2.MORPH_RECT, (50, 30))
 dlt = cv2.dilate(msk, krn, iterations=5)
 res = 255 - cv2.bitwise_and(dlt, msk)
+ret, corners = cv2.findChessboardCorners(res, (7,7), None, flags=(cv2.CALIB_CB_FAST_CHECK +
+                                                  cv2.CALIB_CB_ADAPTIVE_THRESH +
+                                                  cv2.CALIB_CB_NORMALIZE_IMAGE))
+cv2.drawChessboardCorners(image, (7,7), corners, ret)
+cv2.imshow('img', image)
+cv2.waitKey(500)
+
+
+
+
 
 # Use canny edge detection
 edges = cv2.Canny(res, 40, 150, None, 3)
