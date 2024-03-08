@@ -126,15 +126,21 @@ def get_intersections(img, max_lines=14, crop_width=70, crop_height=70,
         intersections = sorted(intersections, key=lambda x: x[1])
         print(intersections)
         print(f"Number of points: {len(intersections)}")
-        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-        ax.imshow(img)
-        ax.set_title('Intersections')
-        plt.show()
+        #fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+        #ax.imshow(img)
+        #ax.set_title('Intersections')
+        #plt.show()
 
     if len(intersections) != 49:
         return ValueError("Only {len(intersections)} intersections found. Expected 49.")
     
     return intersections
+
+
+def pawns_location():       #TODO
+    return [(100,100,"red"), (300,300,"bp")]
+
+
 
 #TODO: think how to cluster close points in intersections
 
