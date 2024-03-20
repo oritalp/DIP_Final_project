@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import board_utils
 
 
 
@@ -29,11 +31,11 @@ def ip_to_matrix(intersections, pawns_location):
 
 
 def matrix_to_move(new_board, old_board):
-    new_board_bin = np.asarray(new_board[0])
-    new_board_color = np.asarray(new_board[1])
-    old_board_bin = np.asarray(old_board[0])
-    old_board_color = np.asarray(old_board[1])
-    changes = new_board_bin - old_board_bin
+    new_board_bin = np.array(new_board[0], dtype=int)
+    new_board_color = np.array(new_board[1])
+    old_board_bin = np.array(old_board[0], dtype=int)
+    old_board_color = np.array(old_board[1])
+    changes = np.subtract(new_board_bin, old_board_bin)
     move_from = np.where(changes == -1)
     move_to = np.where(changes == 1)
     move_occurred = (len(move_to[0]) != 0)
@@ -41,21 +43,46 @@ def matrix_to_move(new_board, old_board):
     pown_move_from = None
     if move_occurred:
         if len(move_to[0]) > 1:
-            print("two powns had moved in the same image") 
-        pown_move_to = [move_to[0][0],move_to[1][0]]
+            move_occurred = False
+            print("two powns had moved in the same image")               # TODO: need to alert error
         if len(move_from[0]) == 1:                                  #pown moved
-            pown_move_from = [move_from[0][0],move_from[1][0]]
-            pos = (True, pown_move_from,pown_move_to)
+            pown_move_from = [move_from[1][0],move_from[0][0]]
+            pown_move_to = [move_to[1][0],move_to[0][0]]
         elif len(move_from[0]) == 0:
             print("someting went wrong, pown added to the game")
         else:                                                       #pown moves and anoder eaten
-            turn_color = new_board_color[pown_move_to[0]][pown_move_to[1]]
+            pown_move_to = [move_to[1][0],move_to[0][0]]
+            turn_color = new_board_color[pown_move_to[1],pown_move_to[0]]
             for i in range(len(move_from[0])):
                 pown_pos = [move_from[0][i],move_from[1][i]]
                 pown_color = old_board_color[pown_pos[0]][pown_pos[1]]
                 if turn_color == pown_color:
                     pown_move_from = pown_pos
                     break
-            pos = (True, pown_move_from, pown_move_to)
     pos = (move_occurred, pown_move_from, pown_move_to)    
-    return pos
+    return pos      # pos = (True/False, (x1,y1), (x2,y2))
+
+
+
+def cal_turn(old_board, frame):
+    ref_img = plt.imread("images_taken/ref_img.jpg")
+    aligned_img,_ = board_utils.align_board(frame, ref_img, verbose=False)
+    intersect = board_utils.get_intersections(aligned_img, verbose=True)
+    if intersect[0] != None: # TODO: fix
+        change = True
+        pawns_location = board_utils.pawns_location()
+        new_board = ip_to_matrix(intersect, pawns_location)
+        pos = matrix_to_move(new_board, old_board)
+    else:
+        change = False
+        pos = (False, None, None)
+        new_board = old_board
+    return new_board, change, pos   # pos = (True/False, (x1,y1), (x2,y2))
+
+def cal_turn_test(old_board, frame):
+    change = True
+    bin_board = eval(input("enter bin_board: "))
+    colore_board = eval(input("enter clore_board: "))
+    new_board = [bin_board, colore_board]
+    pos = matrix_to_move(new_board, old_board)
+    return new_board, change, pos
