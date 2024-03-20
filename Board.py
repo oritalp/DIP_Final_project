@@ -56,17 +56,22 @@ class Board:
             y = y // self.tile_height
         clicked_tile = self.get_tile_from_pos((x, y))
 
-        if self.selected_piece is None:
-            if clicked_tile.occupying_piece is not None:
-                if clicked_tile.occupying_piece.color == self.turn:
+        if self.selected_piece is None:             # If there is no selected_piece currently
+            if clicked_tile.occupying_piece is not None:        # checks if the clicked tile has a Pawn object on it 
+                if clicked_tile.occupying_piece.color == self.turn:     # checks if whether that Pawn object belongs to the current player's turn.
                     self.selected_piece = clicked_tile.occupying_piece
-        elif self.selected_piece._move(clicked_tile):
+                else:
+                    print("the wrong player had played")        # TODO: add alert
+            else:
+                print("there is no pawn in the position that IP detected")  # TODO: add alert
+        elif self.selected_piece._move(clicked_tile):               # אם הצליח לבצע את ההזזה
             if not self.is_jump:
                 self.turn = 'red' if self.turn == 'black' else 'black'
             else:
                 if len(clicked_tile.occupying_piece.valid_jumps()) == 0:
                     self.turn = 'red' if self.turn == 'black' else 'black'
         elif clicked_tile.occupying_piece is not None:
+            print("very weird, look at handle_click func")
             if clicked_tile.occupying_piece.color == self.turn:
                 self.selected_piece = clicked_tile.occupying_piece
 
