@@ -3,6 +3,9 @@ import os
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
+
+import board_utils
+
 class Camera_API:
     def __init__(self,video=False):
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +25,64 @@ class Camera_API:
             self.cam_xy = cv2.VideoCapture(self.camara_xy_path)
             self.cam_z = cv2.VideoCapture(self.camara_yz_path)
 
+    def stream_video(self, ref_img, camera = "xy", save_frame = "new_pic", verbose = False):
+        """Stream video from the camera"""
+        if camera == "xy" and self.cam_xy.isOpened():
+            cap = self.cam_xy
+        elif camera == "z" and self.cam_z.isOpened():
+            cap = self.cam_z
+        res = 0
+        reset_flag = 0
+        curr_holo_mat = None
+        counter = 0
+        while True:
+            ret, frame = cap.read()
+            print(f"reset_flag: {reset_flag}")
+            print(f"current res is: {res}")
+            if ret:
+                res, aligned_frame, curr_holo_mat,_, _ = board_utils.get_locations(frame, ref_img, curr_holo_mat, reset_flag,
+                                                                              verbose=verbose)
+                if res != 0:
+                    cv2.imshow('frame', frame)
+                    #write text on the frame of "couldn't align the frame"
+                    cv2.putText(frame, "Couldn't find the board's inner corners", (10, 30),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
+                    reset_flag = 1
+
+
+                else:
+                    frame = aligned_frame
+                    cv2.imshow('frame', frame)
+                    reset_flag = 0
+
+                    
+                if cv2.waitKey(120) & 0xFF == ord('q'): # Press 'q' to exit
+                    break
+                elif cv2.waitKey(120) & 0xFF == ord('s'): #press 's' to save frame
+                    self.save_frame(frame, save_frame +  "_" + str(counter))
+                    print(f"Frame saved as {save_frame + '_' + str(counter)}.jpg")
+                    counter += 1
+                elif cv2.waitKey(120) & 0xFF == ord('r'):
+                    reset_flag = 1
+                    print("A reset request has been made")
+                
+
+
+
+            else:
+                print(f"Error: Failed to capture frame from camera {camera}.")
+                break
+        cap.release()
+        cv2.destroyAllWindows()
+
+
+    def save_frame(self, frame, save_name='frame'):
+        """saves a frame to a file in the images_taken directory"""
+        Path.mkdir(Path.cwd() / "images_taken" , parents=True, exist_ok=True)
+        # frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        cv2.imwrite( "images_taken/" + save_name + ".jpg", frame)
+
+
     def open_camera(self, camera_number_xy=0, camera_number_z=1):
         """Open connections to the specified cameras"""
         if not self.cam_xy.isOpened():
@@ -33,6 +94,8 @@ class Camera_API:
             self.cam_z.open(camera_number_z)
         else:
             print("Error: Camera Z is already opened.")
+
+######################################### Ref utils #########################################
 
     def get_frames_with_skip(self, skip_count):
         """
@@ -89,11 +152,7 @@ class Camera_API:
         cv2.imshow(window_name, frame)
         cv2.waitKey(0)
     
-    def save_frame(self, frame, save_path='frame.png'):
-        """saves a frame to a file in the images_taken directory"""
-        Path.mkdir(Path.cwd() / "images_taken" , parents=True, exist_ok=True)
-        # frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        plt.imsave( "images_taken/" + save_path, frame)
+
 
     def close_display_window(self, window_name='Camera Feed'):
         """Close the display window"""
