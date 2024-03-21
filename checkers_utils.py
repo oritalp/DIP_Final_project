@@ -127,14 +127,41 @@ def matrix_to_move(new_board, old_board):
 
 
 
-def cal_turn(old_board, curr_holo_met, reset_flg):
-    ref_img = plt.imread("images_taken/ref_img.jpg")
-    good_sempales = False
-    num_good_sempales = 0
-    while not good_sempales:
-        pass
-    aligned_img,_ = board_utils.align_board(frame, ref_img, verbose=False)
-    intersect = board_utils.get_intersections(aligned_img, verbose=True)
+def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam):
+
+
+
+
+    ref_img = cv2.imread("images_taken/new_alligned.jpg")
+    break_flag = False
+    res = 0
+    locs_list = []
+
+    while not break_flag:
+        ret, frame = checkers_cam.read()
+        if not ret:
+            raise Exception("Error: Failed to capture frame from checkers camera.")
+        else:
+            res, aligned_frame, curr_holo_mat, intersections, pawnas_locs = board_utils.get_locations(frame, ref_img, 
+                                                                                                      curr_holo_mat, 
+                                                                                                      reset_flag,
+                                                                                                     verbose=False)
+            if res != 0:
+                locs_list = []
+                reset_flag = 1
+            else:
+                locs_list.append((intersections, pawnas_locs))
+
+            if len(locs_list) == 5:
+                break_flag = True
+
+            if cv2.waitKey(1) & 0xFF == ord('r'):
+                reset_flag = 1
+
+    assert(reset_flag == 0)
+
+    #pawns_locs is a 4-tuple list: (x, y, color, radius)
+
     if intersect[0] != None: # TODO: fix
         change = True
         pawns_location = board_utils.pawns_location()
@@ -144,7 +171,7 @@ def cal_turn(old_board, curr_holo_met, reset_flg):
         change = False
         pos = (False, None, None)
         new_board = old_board
-    return new_board, pos, curr_holo_met, reset_flg   # pos = (True/False, (x1,y1), (x2,y2))
+    return new_board, pos, curr_holo_mat, reset_flag   # pos = (True/False, (x1,y1), (x2,y2))
 
 def cal_turn_test(old_board):
     change = True

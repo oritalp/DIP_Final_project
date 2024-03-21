@@ -3,6 +3,7 @@ from Board import Board
 from Game import Game
 import checkers_utils
 import time
+import cv2
 
 class Checkers:
     def __init__(self, screen, camera_api):
@@ -16,7 +17,9 @@ class Checkers:
         pygame.display.update()
 
     def main(self, window_width, window_height):
-        self.camera_api.open_camera_checkers_cam()
+        checkers_cam = cv2.VideoCapture(1) 
+        # if not checkers_cam.isOpened():
+        #     checkers_cam.open(1)
         board_size = 8
         tile_width, tile_height = window_width // board_size, window_height // board_size
         board = Board(tile_width, tile_height, board_size)
@@ -42,19 +45,20 @@ class Checkers:
             ['rp', '', 'rp', '', 'rp', '', 'rp', '']
         ]                                   # initialization bord
         new_board = [board_bin, bord_color]  # initialization bord
-        curr_holo_met = None
-        reset_flg = 0
+        curr_holo_mat = None
+        reset_flag = 0
         while self.running:
             start_time = time.time()
             game.check_jump(board)
             if game.is_game_over(board):
                     game.message()
                     self.running = False
-                    self.camera_api.close_checkers_cam()
+
             else:
                 old_board = new_board
                 print(f"time it took: {time.time()-start_time}")
-                new_board, change, pos = checkers_utils.cal_turn_test(old_board)
+                new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
+                                                                                    checkers_cam)
                 start_time = time.time()
                 if change == True and pos[0] == True:                # a player moved someting
                     x_event = pos[1][0]
@@ -71,7 +75,7 @@ class Checkers:
             for self.event in pygame.event.get():                # checking if click Exit
                 if self.event.type == pygame.QUIT:
                     self.running = False
-                    self.camera_api.close_checkers_cam()
+
                 #if not game.is_game_over(board):
                  #   if self.event.type == pygame.MOUSEBUTTONDOWN:
                   #      a = self.event.pos
@@ -84,3 +88,4 @@ class Checkers:
             self._draw(board)
             self.FPS.tick(60)
             
+        checkers_cam.release()
