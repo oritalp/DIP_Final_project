@@ -54,7 +54,7 @@ class Checkers:
             else:
                 old_board = new_board
                 print(f"time it took: {time.time()-start_time}")
-                new_board, pos, curr_holo_met, reset_flg = checkers_utils.cal_turn(old_board, curr_holo_met, reset_flg)
+                new_board, change, pos = checkers_utils.cal_turn_test(old_board)
                 start_time = time.time()
                 if change == True and pos[0] == True:                # a player moved someting
                     x_event = pos[1][0]

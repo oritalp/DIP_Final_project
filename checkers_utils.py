@@ -142,7 +142,7 @@ def cal_turn(old_board, curr_holo_met, reset_flg):
         new_board = old_board
     return new_board, pos, curr_holo_met, reset_flg   # pos = (True/False, (x1,y1), (x2,y2))
 
-def cal_turn_test(old_board, frame):
+def cal_turn_test(old_board):
     change = True
     bin_board = eval(input("enter bin_board: "))
     colore_board = eval(input("enter clore_board: "))
