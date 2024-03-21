@@ -1,11 +1,18 @@
 import pygame
 from Piece import Piece
+import os
 
 class Pawn(Piece):
     def __init__(self, x, y, color, board):
         super().__init__(x, y, color, board)
-        img_path = f'checkers_images/{color}-pawn.png'
-        self.img = pygame.image.load(img_path)
+        img_path = f'/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/{color}/'
+        img_name = f'{color}-pawn.png'
+        if color == "red":
+            pass
+        for file in os.listdir(img_path):
+            if file == "player-pawn.png": 
+                img_name = 'player-pawn.png'
+        self.img = pygame.image.load(img_path+img_name)
         self.img = pygame.transform.scale(self.img, (board.tile_width, board.tile_height))
         self.notation = 'p'
 

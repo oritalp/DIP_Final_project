@@ -1,8 +1,67 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import board_utils
+from tkinter.filedialog import asksaveasfile
+from tkinter import filedialog as fd
+import os
+import shutil
+from PIL import Image, ImageDraw 
+import cv2
 
 
+def choose_red(camera_api):
+    img = camera_api.read_frame("computer")
+    cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    B, G, R = cv2.split(img)
+    # Strengthen the red component
+    R_strengthened = np.clip(R.astype(np.float32) * 9, 0, 255).astype(np.uint8)  # Adjust the factor as needed
+    # Create an alpha channel
+    alpha_channel = np.ones(R.shape, dtype=R.dtype) * 255  # Fully opaque. Adjust if you want transparency.
+    # Merge the B, G, R, and alpha channels into one BGRA image
+    img = cv2.merge((B, G, R_strengthened, alpha_channel))
+    camera_api.display_frame(img)
+    camera_api.close_display_window()
+    save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/red/"
+    file_name = "player-pawn.png"
+    hh, ww = img.shape[:2]
+    hh2 = hh // 2
+    ww2 = ww // 2
+    # define circles
+    radius1 = min(hh2,ww2)
+    #radius2 = 75
+    xc = 1000  #540
+    yc = 500   #960
+    # draw filled circles in white on black background as masks
+    mask = np.zeros_like(img)
+    mask = cv2.circle(mask, (xc,yc), radius1, (255,255,255), -1)
+    # put mask into alpha channel of input
+    img[:, :, 3] = mask[:,:,0]
+    # save results
+    cv2.imwrite(save_path+file_name, img)
+
+
+def choose_white(camera_api):
+    img = camera_api.read_frame("computer")
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)
+    camera_api.display_frame(img)
+    camera_api.close_display_window()
+    save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/black/"
+    file_name = "player-pawn.png"
+    hh, ww = img.shape[:2]
+    hh2 = hh // 2
+    ww2 = ww // 2
+    # define circles
+    radius1 = min(hh2,ww2)
+    #radius2 = 75
+    xc = 1000  #540
+    yc = 500   #960
+    # draw filled circles in white on black background as masks
+    mask = np.zeros_like(img)
+    mask = cv2.circle(mask, (xc,yc), radius1, (255,255,255), -1)
+    # put mask into alpha channel of input
+    img[:, :, 3] = mask[:,:,0]
+    # save results
+    cv2.imwrite(save_path+file_name, img)
 
 def ip_to_matrix(intersections, pawns_location):
     board_bin = [[0 for _ in range(8)] for _ in range(8)]
