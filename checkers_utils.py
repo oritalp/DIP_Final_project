@@ -9,6 +9,10 @@ from PIL import Image, ImageDraw
 import cv2
 
 
+def on_closing():
+    exit()
+
+
 def choose_red(camera_api):
     img = camera_api.read_frame("computer")
     cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
