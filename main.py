@@ -26,8 +26,9 @@ camera_api = Camera_API()
 # camera_api.stream_video(ref_img,"z", save_frame="video_exam", verbose=True)
 
 #Shelly's check
-
-camera_api.open_camera_computer_cam(cam_num=1)
+computer_cam = cv2.VideoCapture(0)
+# if not computer_cam.isOpened():
+#     computer_cam.open(0)
 root= Tk()
 root.geometry("750x250")
 root.columnconfigure(0, weight=1)
@@ -56,7 +57,8 @@ start_button = ttk.Button(root, text="Start The Game", command=root.destroy)
 start_button.grid(row = 2, pady = 20)
 root.mainloop()
 
-camera_api.close_computer_cam()
+computer_cam.release()
+
 pygame.init()
 window_size = (640, 640)
 screen = pygame.display.set_mode(window_size)
