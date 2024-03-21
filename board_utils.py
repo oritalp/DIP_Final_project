@@ -165,7 +165,7 @@ def get_intersections(res_align, img, max_lines=14, crop_width_left=55, crop_wid
         # Display the image and print the results
         intersections = sorted(intersections, key=lambda x: x[0])
         intersections = sorted(intersections, key=lambda x: x[1])
-        
+
 
         if verbose:
             fig, ax = plt.subplots(1,2, figsize=(10, 10))
@@ -232,6 +232,7 @@ def get_circles(img, canny_high_th=60, verbose=False):
         axes[1].imshow(edges, cmap='gray')
         axes[1].set_title("Canny edges")
         plt.show()
+
 
     return output_list
 
@@ -315,8 +316,8 @@ def get_locations(img_to_al, ref_img, last_holo_mat, reset_flag=0, min_desc=100,
             print(f"Time to process the image: {time.time() - start_time}")
 
 
-
     return result, aligned_img, new_holo_mat, intersections, circles
+
 
 if __name__ == "__main__":
     img_to_al = cv2.imread("images_taken/video_exam_0.jpg")
