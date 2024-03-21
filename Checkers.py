@@ -42,7 +42,8 @@ class Checkers:
             ['rp', '', 'rp', '', 'rp', '', 'rp', '']
         ]                                   # initialization bord
         new_board = [board_bin, bord_color]  # initialization bord
-
+        curr_holo_met = None
+        reset_flg = 0
         while self.running:
             start_time = time.time()
             game.check_jump(board)
@@ -52,9 +53,8 @@ class Checkers:
                     self.camera_api.close_checkers_cam()
             else:
                 old_board = new_board
-                frame = self.camera_api.read_frame()
                 print(f"time it took: {time.time()-start_time}")
-                new_board, change, pos = checkers_utils.cal_turn_test(old_board, frame)
+                new_board, pos, curr_holo_met, reset_flg = checkers_utils.cal_turn(old_board, curr_holo_met, reset_flg)
                 start_time = time.time()
                 if change == True and pos[0] == True:                # a player moved someting
                     x_event = pos[1][0]

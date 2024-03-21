@@ -12,8 +12,8 @@ class Camera_API:
 
         # Initialize camera
         if not video:
-            self.checkers_cam = cv2.VideoCapture(3)
-            self.computer_cam = cv2.VideoCapture(1)
+            self.checkers_cam = cv2.VideoCapture(1)
+            self.computer_cam = cv2.VideoCapture(2)
 
         else:
             print("using video")
