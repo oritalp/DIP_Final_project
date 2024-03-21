@@ -9,30 +9,33 @@ class Camera_API:
 
         # Initialize camera
         if not video:
-            self.cam_xy = cv2.VideoCapture(1)
-            self.cam_z = cv2.VideoCapture(2)
+            self.checkers_cam = cv2.VideoCapture(3)
+            self.computer_cam = cv2.VideoCapture(1)
 
         else:
             print("using video")
             self.camara_xy_path = os.path.join(current_script_dir, "video", "vid1xy.mp4")
-            self.camara_yz_path = os.path.join(current_script_dir, "video", "vid1z.mp4")
+            #self.camara_yz_path = os.path.join(current_script_dir, "video", "vid1z.mp4")
 
             #self.camara_xy_path = 1
             #self.camara_yz_path = 2
             self.cam_xy = cv2.VideoCapture(self.camara_xy_path)
-            self.cam_z = cv2.VideoCapture(self.camara_yz_path)
+            #self.cam_z = cv2.VideoCapture(self.camara_yz_path)
 
-    def open_camera(self, camera_number_xy=0, camera_number_z=1):
+    def open_camera_checkers_cam(self, cam_num=0):
         """Open connections to the specified cameras"""
-        if not self.cam_xy.isOpened():
-            self.cam_xy.open(camera_number_xy)
+        if not self.checkers_cam.isOpened():
+            self.checkers_cam.open(cam_num)
         else:
-            print("Error: Camera XY is already opened.")
+            print("Error: Checkers camera is already opened.")
 
-        if not self.cam_z.isOpened():
-            self.cam_z.open(camera_number_z)
+
+    def open_camera_computer_cam(self, cam_num=1):
+        """Open connections to the specified cameras"""
+        if not self.computer_cam.isOpened():
+            self.computer_cam.open(cam_num)
         else:
-            print("Error: Camera Z is already opened.")
+            print("Error: Computer camera is already opened.")
 
     def get_frames_with_skip(self, skip_count):
         """
@@ -54,21 +57,25 @@ class Camera_API:
         if self.cam_z.isOpened():
             self.cam_z.release()
 
-    def read_frame(self, camera='xy'):
-        """Read and return the current frame from the specified camera"""
-        if camera == 'xy':
-            cap = self.cam_xy
-        elif camera == 'z':
-            cap = self.cam_z
-        else:
-            print("Error: Invalid camera selection.")
-            return None
+    def close_computer_cam(self):
+        if self.computer_cam.isOpened():
+            self.computer_cam.release()
 
+    def close_checkers_cam(self):
+        if self.checkers_cam.isOpened():
+            self.checkers_cam.release()
+
+    def read_frame(self, cam="checkers"):
+        """Read and return the current frame from the specified camera"""
+        if cam == "checkers":
+            cap = self.checkers_cam
+        else:
+            cap = self.computer_cam
         ret, frame = cap.read()
         if ret:
-            return np.array(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         else:
-            print(f"Error: Failed to capture frame from camera {camera}.")
+            print(f"Error: Failed to capture frame from camera.")
             return None
 
     def read_frames(self, camera='xy', num_frames=1):
@@ -87,7 +94,7 @@ class Camera_API:
     def display_frame(self, frame, window_name='Camera Feed'):
         """Display a frame in a window"""
         cv2.imshow(window_name, frame)
-        cv2.waitKey(0)
+        cv2.waitKey(1300)
     
     def save_frame(self, frame, save_path='frame.png'):
         """saves a frame to a file in the images_taken directory"""
