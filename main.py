@@ -21,17 +21,13 @@ from image_sample import Camera_API
 ref_img = cv2.imread("images_taken/new_alligned.jpg")
  
 camera_api = Camera_API()
-camera_api.close_cameras()
-camera_api.open_cameras()
-camera_api.stream_video(ref_img,"z", save_frame="video_exam", verbose=True)
-
-
-
-
-
+# camera_api.close_cameras()
+# camera_api.open_cameras()
+# camera_api.stream_video(ref_img,"z", save_frame="video_exam", verbose=True)
 
 #Shelly's check
-camera_api.open_camera_computer_cam()
+
+camera_api.open_camera_computer_cam(cam_num=1)
 root= Tk()
 root.geometry("750x250")
 root.columnconfigure(0, weight=1)

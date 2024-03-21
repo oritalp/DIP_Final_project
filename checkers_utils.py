@@ -80,7 +80,7 @@ def ip_to_matrix(intersections, pawns_location):
         unique_y.append(round(y_avg))
     x_to_grid = {pixel: index for index, pixel in enumerate(unique_x)}
     y_to_grid = {pixel: index for index, pixel in enumerate(unique_y)}
-    for x, y, color in pawns_location:
+    for x, y, color, _ in pawns_location:
             grid_x = x_to_grid[min(unique_x, key=lambda k: 0>k-x)]
             grid_y = y_to_grid[min(unique_y, key=lambda k: 0>k-y)]
             board_bin[grid_y][grid_x] = 1  # Place a pawn on the board
@@ -123,8 +123,12 @@ def matrix_to_move(new_board, old_board):
 
 
 
-def cal_turn(old_board, frame):
+def cal_turn(old_board, curr_holo_met, reset_flg):
     ref_img = plt.imread("images_taken/ref_img.jpg")
+    good_sempales = False
+    num_good_sempales = 0
+    while not good_sempales:
+        pass
     aligned_img,_ = board_utils.align_board(frame, ref_img, verbose=False)
     intersect = board_utils.get_intersections(aligned_img, verbose=True)
     if intersect[0] != None: # TODO: fix
@@ -136,9 +140,9 @@ def cal_turn(old_board, frame):
         change = False
         pos = (False, None, None)
         new_board = old_board
-    return new_board, change, pos   # pos = (True/False, (x1,y1), (x2,y2))
+    return new_board, pos, curr_holo_met, reset_flg   # pos = (True/False, (x1,y1), (x2,y2))
 
-def cal_turn_test(old_board, frame):
+def cal_turn_test(old_board):
     change = True
     bin_board = eval(input("enter bin_board: "))
     colore_board = eval(input("enter clore_board: "))
