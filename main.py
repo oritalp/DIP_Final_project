@@ -2,6 +2,9 @@ import cv2
 import pygame
 import os
 import numpy as np
+
+import matplotlib.pyplot as plt
+
 from image_sample import Camera_API
 import matplotlib.pyplot as plt
 import board_utils
@@ -11,7 +14,23 @@ from tkinter import *
 from tkinter import ttk
 
 
+from image_sample import Camera_API
+
+
+#Ori's check
+ref_img = cv2.imread("images_taken/new_alligned.jpg")
+ 
 camera_api = Camera_API()
+camera_api.close_cameras()
+camera_api.open_cameras()
+camera_api.stream_video(ref_img,"z", save_frame="video_exam", verbose=True)
+
+
+
+
+
+
+#Shelly's check
 camera_api.open_camera_computer_cam()
 root= Tk()
 root.geometry("750x250")
@@ -55,4 +74,3 @@ checkers.main(window_size[0], window_size[1])
 
 
 
- 
