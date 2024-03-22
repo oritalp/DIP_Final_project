@@ -134,21 +134,19 @@ def matrix_to_move(new_board, old_board):
 
 
 
-def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam):
+def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False):
     num_of_vote = 5
     ref_img = cv2.imread("images_taken/new_alligned.jpg")
     break_flag = False
     res = 0
     locs_list = []
+    quit_flag = False # for debug
 
     while not break_flag:
         ret, frame = checkers_cam.read()
         if not ret:
             raise Exception("Error: Failed to capture frame from checkers camera.")
         else:
-            cv2.imshow("window", frame)
-            cv2.waitKey(1300)
-            cv2.destroyWindow("window")
             res, aligned_frame, curr_holo_mat, intersections, pawnas_locs = board_utils.get_locations(frame, ref_img, 
                                                                                                       curr_holo_mat, 
                                                                                                       reset_flag,
@@ -157,16 +155,32 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam):
             if res != 0:
                 locs_list = []
                 reset_flag = 1
+                if verbose:
+                    cv2.putText(frame, "Couldn't find the board's inner corners", (10, 30),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1, cv2.LINE_AA)
+                    cv2.imshow("Debgging cal_turn", frame)
+
             else:
                 locs_list.append((intersections, pawnas_locs))  # pawns_locs is a 4-tuple list: (x, y, color, radius)
+                reset_flag = 0
+                if verbose:
+                    cv2.imshow("Debgging cal_turn", aligned_frame)
 
             if len(locs_list) == num_of_vote:
                 break_flag = True
 
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                quit_flag = True
+                break
+
             if cv2.waitKey(1) & 0xFF == ord('r'):
                 reset_flag = 1
 
-    assert(reset_flag == 0)
+    if quit_flag:
+        return None, None, None, None, True
+
+    if not quit_flag:
+        assert(reset_flag == 0)
     board_list = []     # for debug
     vote_bin_matrix = [[0 for _ in range(8)] for _ in range(8)]
     new_board = [[[0 for _ in range(8)] for _ in range(8)], [["" for _ in range(8)] for _ in range(8)]]

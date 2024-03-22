@@ -27,10 +27,10 @@ class Camera_API:
 
     def stream_video(self, ref_img, camera = "xy", save_frame = "new_pic", verbose = False):
         """Stream video from the camera"""
-        if camera == "xy" and self.cam_xy.isOpened():
-            cap = self.cam_xy
-        elif camera == "z" and self.cam_z.isOpened():
-            cap = self.cam_z
+        if camera == "xy" and self.checkers_cam.isOpened():
+            cap = self.checkers_cam
+        elif camera == "z" and self.computer_cam.isOpened():
+            cap = self.computer_cam
         res = 0
         reset_flag = 0
         curr_holo_mat = None
@@ -43,10 +43,11 @@ class Camera_API:
                 res, aligned_frame, curr_holo_mat,_, _ = board_utils.get_locations(frame, ref_img, curr_holo_mat, reset_flag,
                                                                               verbose=verbose)
                 if res != 0:
-                    cv2.imshow('frame', frame)
-                    #write text on the frame of "couldn't align the frame"
                     cv2.putText(frame, "Couldn't find the board's inner corners", (10, 30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
+                    cv2.imshow('frame', frame)
+                    #write text on the frame of "couldn't align the frame"
+
                     reset_flag = 1
 
 
