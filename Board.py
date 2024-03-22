@@ -49,7 +49,8 @@ class Board:
                         color = 'red' if x[0] == 'r' else 'black'
                         tile.occupying_piece = Pawn(x_ind, y_ind, color, self)
 
-    def handle_click(self, pos):
+    def handle_click(self, pos,legal_turn ):                  # Nadav added boolian parameter that determine if the turn was legal
+        legal_turn = True
         x, y = pos[0], pos[-1]
         if x >= self.board_size or y >= self.board_size:
             x = x // self.tile_width
@@ -60,20 +61,31 @@ class Board:
             if clicked_tile.occupying_piece is not None:        # checks if the clicked tile has a Pawn object on it 
                 if clicked_tile.occupying_piece.color == self.turn:     # checks if whether that Pawn object belongs to the current player's turn.
                     self.selected_piece = clicked_tile.occupying_piece
+                    return(legal_turn, "All fine capara")
                 else:
                     print("the wrong player had played")        # TODO: add alert
+                    legal_turn = False
+                    return(legal_turn, "the wrong player had played")
             else:
                 print("there is no pawn in the position that IP detected")  # TODO: add alert
+                legal_turn = False
+                return(legal_turn, "there is no pawn in the position that IP detected")
         elif self.selected_piece._move(clicked_tile):               # אם הצליח לבצע את ההזזה
             if not self.is_jump:
                 self.turn = 'red' if self.turn == 'black' else 'black'
+                return(legal_turn, "All fine capara")
             else:
                 if len(clicked_tile.occupying_piece.valid_jumps()) == 0:
                     self.turn = 'red' if self.turn == 'black' else 'black'
+                    return(legal_turn, "All fine capara")
         elif clicked_tile.occupying_piece is not None:
             print("very weird, look at handle_click func")
             if clicked_tile.occupying_piece.color == self.turn:
                 self.selected_piece = clicked_tile.occupying_piece
+                legal_turn=False
+                return(legal_turn, "very weird, something went wrong")
+            legal_turn = False
+            return(legal_turn,"very weird, something went wrong")
 
     def draw(self, display):
         if self.selected_piece is not None:

@@ -21,7 +21,7 @@ def choose_red(camera_api):
     img = cv2.merge((B, G, R_strengthened, alpha_channel))
     camera_api.display_frame(img)
     camera_api.close_display_window()
-    save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/red/"
+    save_path = "C:\checkers_images\red"
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2
@@ -45,7 +45,7 @@ def choose_white(camera_api):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)
     camera_api.display_frame(img)
     camera_api.close_display_window()
-    save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/black/"
+    save_path = "C:\checkers_images\black"
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2

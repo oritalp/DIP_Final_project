@@ -20,14 +20,14 @@ from image_sample import Camera_API
 #Ori's check
 ref_img = cv2.imread("images_taken/new_alligned.jpg")
  
-camera_api = Camera_API()
+#############camera_api = Camera_API()
 # camera_api.close_cameras()
 # camera_api.open_cameras()
 # camera_api.stream_video(ref_img,"z", save_frame="video_exam", verbose=True)
 
 #Shelly's check
 
-camera_api.open_camera_computer_cam(cam_num=1)
+#############camera_api.open_camera_computer_cam(cam_num=1)
 root= Tk()
 root.geometry("750x250")
 root.columnconfigure(0, weight=1)
@@ -56,13 +56,13 @@ start_button = ttk.Button(root, text="Start The Game", command=root.destroy)
 start_button.grid(row = 2, pady = 20)
 root.mainloop()
 
-camera_api.close_computer_cam()
+#############camera_api.close_computer_cam()
 pygame.init()
 window_size = (640, 640)
 screen = pygame.display.set_mode(window_size)
 pygame.display.set_caption("Checkers")
 
-checkers = Checkers(screen, camera_api)
+checkers = Checkers(screen, camera_api=None)
 checkers.main(window_size[0], window_size[1])
 
 

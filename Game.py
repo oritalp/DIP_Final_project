@@ -36,7 +36,7 @@ class Game:
                     board.is_jump = False
         if board.is_jump:
             board.selected_piece = piece
-            board.handle_click(piece.pos)
+            board.handle_click(piece.pos, legal_turn =True)
         return board.is_jump
     
     def message(self):
