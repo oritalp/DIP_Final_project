@@ -19,6 +19,7 @@ class Checkers:
         checkers_cam = cv2.VideoCapture(0) 
         # if not checkers_cam.isOpened():
         #     checkers_cam.open(1)
+        quit_flag = False #Ori added for debugging purposes only
         board_size = 8
         tile_width, tile_height = window_width // board_size, window_height // board_size
         board = Board(tile_width, tile_height, board_size)
@@ -56,8 +57,10 @@ class Checkers:
             else:
                 old_board = new_board
                 print(f"time it took: {time.time()-start_time}")
-                new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
-                                                                                    checkers_cam)
+                new_board, pos, curr_holo_mat, reset_flag, quit_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
+                                                                                    checkers_cam, verbose=False)
+                if quit_flag:
+                    break
                 start_time = time.time()
                 if pos[0] == True:                # a player moved someting
                     x_event = pos[1][0]
@@ -88,3 +91,4 @@ class Checkers:
             self.FPS.tick(60)
             
         checkers_cam.release()
+        cv2.destroyAllWindows

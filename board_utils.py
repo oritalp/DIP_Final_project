@@ -382,12 +382,16 @@ if __name__ == "__main__":
     img_to_al = cv2.imread("images_taken/final_exam_0.jpg")
     ref_img = cv2.imread("images_taken/new_alligned.jpg")
 
-    res, h = compute_holo_mat(img_to_al, ref_img, max_features=800, keep_percent=0.7)
-    if res ==0:
-        res, aligned_img = align_board(img_to_al, ref_img, res, h)
-        intersections = get_intersections(res, aligned_img, verbose=True)
+    # res, h = compute_holo_mat(img_to_al, ref_img, max_features=800, keep_percent=0.7)
+    # if res ==0:
+    #     res, aligned_img = align_board(img_to_al, ref_img, res, h)
+    #     intersections = get_intersections(res, aligned_img, verbose=True)
 
-        print(check_grid_spacing(intersections, verbose=True))
+    #     print(check_grid_spacing(intersections, verbose=True))
+
+    camera = image_sample.Camera_API()
+    camera.stream_video(ref_img, camera="xy", save_frame="new_pic", verbose=True)
+    
 
 
     
