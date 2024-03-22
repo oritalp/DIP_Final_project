@@ -3,15 +3,21 @@ import matplotlib.pyplot as plt
 import board_utils
 from tkinter.filedialog import asksaveasfile
 from tkinter import filedialog as fd
-import os
-import shutil
-from PIL import Image, ImageDraw 
+from collections import defaultdict
 import cv2
 
 
-def choose_red(camera_api):
-    img = camera_api.read_frame("computer")
-    cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+def on_closing():
+    exit()
+
+
+def choose_red(computer_cam):
+    ret, frame = computer_cam.read()
+    if ret:
+        img = frame
+    else:
+        print(f"Error: Failed to capture frame from camera.")
+    #cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     B, G, R = cv2.split(img)
     # Strengthen the red component
     R_strengthened = np.clip(R.astype(np.float32) * 9, 0, 255).astype(np.uint8)  # Adjust the factor as needed
@@ -19,8 +25,9 @@ def choose_red(camera_api):
     alpha_channel = np.ones(R.shape, dtype=R.dtype) * 255  # Fully opaque. Adjust if you want transparency.
     # Merge the B, G, R, and alpha channels into one BGRA image
     img = cv2.merge((B, G, R_strengthened, alpha_channel))
-    camera_api.display_frame(img)
-    camera_api.close_display_window()
+    cv2.imshow("window", img)
+    cv2.waitKey(1300)
+    cv2.destroyWindow("window")
     save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/red/"
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
@@ -40,11 +47,15 @@ def choose_red(camera_api):
     cv2.imwrite(save_path+file_name, img)
 
 
-def choose_white(camera_api):
-    img = camera_api.read_frame("computer")
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGBA)
-    camera_api.display_frame(img)
-    camera_api.close_display_window()
+def choose_white(computer_cam):
+    ret, frame = computer_cam.read()
+    if ret:
+        img = frame
+    else:
+        print(f"Error: Failed to capture frame from camera.")
+    cv2.imshow("window", img)
+    cv2.waitKey(1300)
+    cv2.destroyWindow("window")
     save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/black/"
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
@@ -86,7 +97,7 @@ def ip_to_matrix(intersections, pawns_location):
             board_bin[grid_y][grid_x] = 1  # Place a pawn on the board
             bord_color[grid_y][grid_x] = color
     board = [board_bin, bord_color]
-    return board
+    return board_bin, bord_color
 
 
 def matrix_to_move(new_board, old_board):
@@ -124,10 +135,7 @@ def matrix_to_move(new_board, old_board):
 
 
 def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam):
-
-
-
-
+    num_of_vote = 5
     ref_img = cv2.imread("images_taken/new_alligned.jpg")
     break_flag = False
     res = 0
@@ -138,35 +146,42 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam):
         if not ret:
             raise Exception("Error: Failed to capture frame from checkers camera.")
         else:
+            cv2.imshow("window", frame)
+            cv2.waitKey(1300)
+            cv2.destroyWindow("window")
             res, aligned_frame, curr_holo_mat, intersections, pawnas_locs = board_utils.get_locations(frame, ref_img, 
                                                                                                       curr_holo_mat, 
                                                                                                       reset_flag,
                                                                                                      verbose=False)
+            
             if res != 0:
                 locs_list = []
                 reset_flag = 1
             else:
-                locs_list.append((intersections, pawnas_locs))
+                locs_list.append((intersections, pawnas_locs))  # pawns_locs is a 4-tuple list: (x, y, color, radius)
 
-            if len(locs_list) == 5:
+            if len(locs_list) == num_of_vote:
                 break_flag = True
 
             if cv2.waitKey(1) & 0xFF == ord('r'):
                 reset_flag = 1
 
     assert(reset_flag == 0)
+    board_list = []     # for debug
+    vote_bin_matrix = [[0 for _ in range(8)] for _ in range(8)]
+    new_board = [[[0 for _ in range(8)] for _ in range(8)], [["" for _ in range(8)] for _ in range(8)]]
+    for vote_num in range(num_of_vote):
+        board_bin, board_color = ip_to_matrix(locs_list[0][vote_num], locs_list[1][vote_num])
+        board_list.append([board_bin, board_color])
+        for i in range(8):
+            for j in range(8):
+                if board_bin[i][j] == 1:
+                    vote_bin_matrix[i][j] += 1
+                    if vote_bin_matrix[i][j] > 2:
+                        new_board[0][i][j] = 1
+                        new_board[1][i][j] = board_color[i][j]
 
-    #pawns_locs is a 4-tuple list: (x, y, color, radius)
-
-    if intersect[0] != None: # TODO: fix
-        change = True
-        pawns_location = board_utils.pawns_location()
-        new_board = ip_to_matrix(intersect, pawns_location)
-        pos = matrix_to_move(new_board, old_board)
-    else:
-        change = False
-        pos = (False, None, None)
-        new_board = old_board
+    pos = matrix_to_move(new_board, old_board)
     return new_board, pos, curr_holo_mat, reset_flag   # pos = (True/False, (x1,y1), (x2,y2))
 
 def cal_turn_test(old_board):
@@ -176,3 +191,37 @@ def cal_turn_test(old_board):
     new_board = [bin_board, colore_board]
     pos = matrix_to_move(new_board, old_board)
     return new_board, change, pos
+
+
+def cal_turn_test2(old_board, curr_holo_mat, reset_flag, checkers_cam):
+    num_of_vote = 5
+    board_list = []
+    vote_bin_matrix = [[0 for _ in range(8)] for _ in range(8)]
+    new_board = [[[0 for _ in range(8)] for _ in range(8)], [["" for _ in range(8)] for _ in range(8)]]
+    color_vote = [["" for _ in range(8)] for _ in range(8)]
+    color_vote[3][5] = "red"
+    color_vote[5][5] = "black"
+    vote1 = [[0 for _ in range(8)] for _ in range(8)]
+    vote1[3][5] = 1
+    vote2 = [[0 for _ in range(8)] for _ in range(8)]
+    vote2[3][5] = 1
+    vote3 = [[0 for _ in range(8)] for _ in range(8)]
+    vote3[3][5] = 1
+    vote4 = [[0 for _ in range(8)] for _ in range(8)]
+    vote4[5][5] = 1
+    vote5 = [[0 for _ in range(8)] for _ in range(8)]
+    vote5[5][5] = 1
+    locs_list = [[vote1,color_vote],[vote2,color_vote],[vote3,color_vote],[vote4,color_vote],[vote5,color_vote]]
+    for vote_num in range(num_of_vote):
+        board_bin, board_color = locs_list[vote_num][0], locs_list[vote_num][1]
+        board_list.append([board_bin, board_color])
+        for i in range(8):
+            for j in range(8):
+                if board_bin[i][j] == 1:
+                    vote_bin_matrix[i][j] += 1
+                    if vote_bin_matrix[i][j] > 2:
+                        new_board[0][i][j] = 1
+                        new_board[1][i][j] = board_color[i][j]
+
+    pos = matrix_to_move(new_board, old_board)
+    return new_board, pos, curr_holo_mat, reset_flag 

@@ -20,15 +20,8 @@ from image_sample import Camera_API
 #Ori's check
 ref_img = cv2.imread("images_taken/new_alligned.jpg")
  
-camera_api = Camera_API()
-# camera_api.close_cameras()
-# camera_api.open_cameras()
-# camera_api.stream_video(ref_img,"z", save_frame="video_exam", verbose=True)
-
 #Shelly's check
-computer_cam = cv2.VideoCapture(0)
-# if not computer_cam.isOpened():
-#     computer_cam.open(0)
+computer_cam = cv2.VideoCapture(2)
 root= Tk()
 root.geometry("750x250")
 root.columnconfigure(0, weight=1)
@@ -43,7 +36,7 @@ red_frame = Frame(buttons_frame)
 red_frame.pack(side=LEFT, expand=True, padx = 30)
 red_label = Label(red_frame, text="Choose a picture for the red player:", font=('Helvetica 14'))
 red_label.pack()
-red_button = ttk.Button(red_frame, text="Choose Picture", command=lambda : checkers_utils.choose_red(camera_api))
+red_button = ttk.Button(red_frame, text="Choose Picture", command=lambda : checkers_utils.choose_red(computer_cam))
 red_button.pack()
 
 # Create a Frame for the white player options and pack it to the right
@@ -51,7 +44,7 @@ white_frame = Frame(buttons_frame)
 white_frame.pack(side=RIGHT, expand=True, padx = 30)
 white_label = Label(white_frame, text="Choose a picture for the white player:", font=('Helvetica 14'))
 white_label.pack()
-white_button = ttk.Button(white_frame, text="Choose Picture", command=lambda : checkers_utils.choose_white(camera_api))
+white_button = ttk.Button(white_frame, text="Choose Picture", command=lambda : checkers_utils.choose_white(computer_cam))
 white_button.pack()
 start_button = ttk.Button(root, text="Start The Game", command=root.destroy)
 start_button.grid(row = 2, pady = 20)
@@ -64,7 +57,7 @@ window_size = (640, 640)
 screen = pygame.display.set_mode(window_size)
 pygame.display.set_caption("Checkers")
 
-checkers = Checkers(screen, camera_api)
+checkers = Checkers(screen)
 checkers.main(window_size[0], window_size[1])
 
 
