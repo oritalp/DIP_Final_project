@@ -6,18 +6,17 @@ import time
 import cv2
 
 class Checkers:
-    def __init__(self, screen, camera_api):
+    def __init__(self, screen):
         self.screen = screen
         self.running = True
         self.FPS = pygame.time.Clock()
-        self.camera_api = camera_api
 
     def _draw(self, board):
         board.draw(self.screen)
         pygame.display.update()
 
     def main(self, window_width, window_height):
-        checkers_cam = cv2.VideoCapture(1) 
+        checkers_cam = cv2.VideoCapture(0) 
         # if not checkers_cam.isOpened():
         #     checkers_cam.open(1)
         board_size = 8
@@ -60,7 +59,7 @@ class Checkers:
                 new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
                                                                                     checkers_cam)
                 start_time = time.time()
-                if change == True and pos[0] == True:                # a player moved someting
+                if True and pos[0] == True:                # a player moved someting
                     x_event = pos[1][0]
                     y_event = pos[1][1]
                     ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # selecting a pawn
