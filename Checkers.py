@@ -59,7 +59,7 @@ class Checkers:
                 new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
                                                                                     checkers_cam)
                 start_time = time.time()
-                if True and pos[0] == True:                # a player moved someting
+                if pos[0] == True:                # a player moved someting
                     x_event = pos[1][0]
                     y_event = pos[1][1]
                     ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # selecting a pawn

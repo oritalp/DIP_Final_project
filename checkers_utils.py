@@ -153,7 +153,7 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam):
                                                                                                       curr_holo_mat, 
                                                                                                       reset_flag,
                                                                                                      verbose=False)
-            
+            print(res)
             if res != 0:
                 locs_list = []
                 reset_flag = 1
@@ -181,7 +181,7 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam):
                         new_board[0][i][j] = 1
                         new_board[1][i][j] = board_color[i][j]
 
-    pos = matrix_to_move(new_board, old_board)
+    pos,  = matrix_to_move(new_board, old_board)
     return new_board, pos, curr_holo_mat, reset_flag   # pos = (True/False, (x1,y1), (x2,y2))
 
 def cal_turn_test(old_board):
