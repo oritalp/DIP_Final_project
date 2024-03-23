@@ -4,10 +4,11 @@ import checkers_utils
 from Checkers import Checkers
 from tkinter import *
 from tkinter import ttk
+from Path import path
 
 
 #Ori's check
-ref_img = cv2.imread("images_taken/new_alligned.jpg")
+ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
  
 #Shelly's check
 computer_cam = cv2.VideoCapture(2)

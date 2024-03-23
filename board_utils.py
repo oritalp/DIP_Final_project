@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import imutils
 import time
+from Path import path
 
 
 def compute_holo_mat(img_to_al, ref_img, max_features=1000, keep_percent=0.8, num_ignore_first=0):
@@ -379,8 +380,8 @@ def check_grid_spacing(intersections, spacing_tol=10, tol_same_point=8, verbose=
     return True
 
 if __name__ == "__main__":
-    img_to_al = cv2.imread("images_taken/final_exam_0.jpg")
-    ref_img = cv2.imread("images_taken/new_alligned.jpg")
+    img_to_al = cv2.imread(path + "images_taken/final_exam_0.jpg")
+    ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
 
     # res, h = compute_holo_mat(img_to_al, ref_img, max_features=800, keep_percent=0.7)
     # if res ==0:
