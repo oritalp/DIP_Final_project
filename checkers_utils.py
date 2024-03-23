@@ -158,7 +158,7 @@ def matrix_to_move(new_board, old_board):
 
 def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False):
     num_of_vote = 5
-    ref_img = cv2.imread("/Users/shelihendel/Documents/python/IP/DIP_Final_project/images_taken/new_alligned.jpg")
+    ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
     break_flag = False
     res = 0
     locs_list = []
