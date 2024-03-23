@@ -2,6 +2,7 @@ import numpy as np
 import board_utils
 from tkinter.filedialog import asksaveasfile
 import cv2
+from Path import path
 
 
 def on_closing():
@@ -24,7 +25,7 @@ def choose_red(computer_cam):
     cv2.imshow("window", img)
     cv2.waitKey(1300)
     cv2.destroyWindow("window")
-    save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/red/"
+    save_path = path + "checkers_images/red/"
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2
@@ -51,7 +52,7 @@ def choose_white(computer_cam):
     cv2.imshow("window", img)
     cv2.waitKey(1300)
     cv2.destroyWindow("window")
-    save_path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/black/"
+    save_path = path + "checkers_images/black/"
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2
@@ -157,7 +158,7 @@ def matrix_to_move(new_board, old_board):
 
 def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False):
     num_of_vote = 5
-    ref_img = cv2.imread("images_taken/new_alligned.jpg")
+    ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
     break_flag = False
     res = 0
     locs_list = []

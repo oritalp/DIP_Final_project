@@ -1,0 +1,1 @@
+path = "/Users/shelihendel/Documents/python/IP/DIP_Final_project/"

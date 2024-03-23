@@ -1,11 +1,12 @@
 import pygame
 from Piece import Piece
 import os
+from Path import path
 
 class Pawn(Piece):
     def __init__(self, x, y, color, board):
         super().__init__(x, y, color, board)
-        img_path = f'/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/{color}/'
+        img_path = path + f'checkers_images/{color}/'
         img_name = f'{color}-pawn.png'
         if color == "red":
             pass
