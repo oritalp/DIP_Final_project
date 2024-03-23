@@ -169,9 +169,9 @@ def get_intersections(res_align, img, max_lines=14, crop_width_left=55, crop_wid
 
         if verbose:
             fig, ax = plt.subplots(1,2, figsize=(10, 10))
-            ax[0].imshow(img_crp)
+            ax[0].imshow(cv2.cvtColor(img_crp, cv2.COLOR_BGR2RGB))
             ax[0].set_title('Cropped Image')
-            ax[1].imshow(img)
+            ax[1].imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
             ax[1].set_title('Intersections')
             plt.show()
 
@@ -281,8 +281,7 @@ def get_locations(img_to_al, ref_img, last_holo_mat, reset_flag=0, min_desc=100,
                                                           keep_percent=keep_percent)
                 res_align, aligned_img = align_board(img_to_al, ref_img, res_holo, new_holo_mat)
                 intersections = get_intersections(res_align, aligned_img, verbose=False)
-                # TODO: change this condition to be more sophisticated
-                if len(intersections) == 49:
+                if check_grid_spacing(intersections):
                     break_flag = True
                     break
             if break_flag:
@@ -295,8 +294,7 @@ def get_locations(img_to_al, ref_img, last_holo_mat, reset_flag=0, min_desc=100,
         res, aligned_img = align_board(img_to_al, ref_img, 0, last_holo_mat)
         intersections = get_intersections(res, aligned_img, verbose=False)
         new_holo_mat = last_holo_mat
-        # TODO: change the condition also here
-        if len(intersections) != 49:
+        if not check_grid_spacing(intersections):
             result = 1
 
     if break_flag or (reset_flag == 0):
@@ -318,11 +316,82 @@ def get_locations(img_to_al, ref_img, last_holo_mat, reset_flag=0, min_desc=100,
 
     return result, aligned_img, new_holo_mat, intersections, circles
 
+def reduce_list(lst, tollerance=8):
+    """
+    Reduces a list of numbers by removing consecutive numbers that are within a given tolerance.
+    This is an auxilary function for check_grid_spacing.
+
+    Args:
+        lst (list): The input list of numbers.
+        tollerance (int, optional): The tolerance value. Defaults to 8.
+
+    Returns:
+        list: The reduced list of numbers.
+    """
+
+    reduced_list = [lst[0]]
+    for i in range(1, len(lst)):
+        if lst[i] - reduced_list[-1] > tollerance:
+            reduced_list.append(lst[i])
+    return reduced_list
+
+
+def check_grid_spacing(intersections, spacing_tol=10, tol_same_point=8, verbose=False):
+    """
+    Check if the given intersections form a grid with consistent spacing.
+    This is an auxilary function for get_locations to check weather the board is aligned properly.
+
+    Parameters:
+    - intersections (list): A list of (x, y) coordinates representing the intersections.
+    - spacing_tol (int): Tolerance for the maximum difference in spacing between grid lines.
+    - tol_same_point (int): Tolerance for considering two points as the same.
+    - verbose (bool): If True, display a scatter plot of the intersections.
+
+    Returns:
+    - bool: True if the intersections form a grid with consistent spacing, False otherwise.
+    """
+
+    if len(intersections) != 49:
+        return False
+    
+    x_values = [point[0] for point in intersections]
+    y_values = [point[1] for point in intersections]
+
+    set_x = sorted(list(set(x_values)))
+    set_y = sorted(list(set(y_values)))
+
+    reduced_set_x = reduce_list(set_x, tollerance=tol_same_point)
+    reduced_set_y = reduce_list(set_y, tollerance=tol_same_point)
+
+    if len(reduced_set_x) != 7 or len(reduced_set_y) != 7:
+        return False
+
+    if verbose:
+        plt.scatter(x_values, y_values)
+        plt.show()
+
+    distances_x = [reduced_set_x[i] - reduced_set_x[i-1] for i in range(1, len(reduced_set_x))]
+    distances_y = [reduced_set_y[i] - reduced_set_y[i-1] for i in range(1, len(reduced_set_y))]
+
+    if max(distances_x) - min(distances_x) > spacing_tol or max(distances_y) - min(distances_y) > spacing_tol:
+        return False
+
+    return True
 
 if __name__ == "__main__":
-    img_to_al = cv2.imread("images_taken/video_exam_0.jpg")
+    img_to_al = cv2.imread("images_taken/final_exam_0.jpg")
     ref_img = cv2.imread("images_taken/new_alligned.jpg")
 
+    # res, h = compute_holo_mat(img_to_al, ref_img, max_features=800, keep_percent=0.7)
+    # if res ==0:
+    #     res, aligned_img = align_board(img_to_al, ref_img, res, h)
+    #     intersections = get_intersections(res, aligned_img, verbose=True)
+
+    #     print(check_grid_spacing(intersections, verbose=True))
+
+    camera = image_sample.Camera_API()
+    camera.stream_video(ref_img, camera="xy", save_frame="new_pic", verbose=True)
+    
 
 
     

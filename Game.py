@@ -19,7 +19,7 @@ class Game:
     def is_game_over(self, board):
         red_piece, black_piece = self.check_piece(board)
         if red_piece == 0 or black_piece == 0:
-            self.winner = "red" if red_piece > black_piece else "black"
+            self.winner = "red" if red_piece > black_piece else "white"
             return True
         else:
             return False

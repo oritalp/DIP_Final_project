@@ -2,21 +2,23 @@ import pygame
 from Board import Board
 from Game import Game
 import checkers_utils
-import time
+
+import os
+import cv2
 
 class Checkers:
-    def __init__(self, screen, camera_api):
+    def __init__(self, screen):
         self.screen = screen
         self.running = True
         self.FPS = pygame.time.Clock()
-        self.camera_api = camera_api
 
     def _draw(self, board):
         board.draw(self.screen)
         pygame.display.update()
 
     def main(self, window_width, window_height):
-        self.camera_api.open_camera_checkers_cam()
+        checkers_cam = cv2.VideoCapture(0) 
+        quit_flag = False #Ori added for debugging purposes only
         board_size = 8
         tile_width, tile_height = window_width // board_size, window_height // board_size
         board = Board(tile_width, tile_height, board_size)
@@ -42,45 +44,41 @@ class Checkers:
             ['rp', '', 'rp', '', 'rp', '', 'rp', '']
         ]                                   # initialization bord
         new_board = [board_bin, bord_color]  # initialization bord
-        curr_holo_met = None
-        reset_flg = 0
+        curr_holo_mat = None
+        reset_flag = 0
         while self.running:
-            start_time = time.time()
             game.check_jump(board)
             if game.is_game_over(board):
                     game.message()
                     self.running = False
-                    self.camera_api.close_checkers_cam()
+
             else:
                 old_board = new_board
-                print(f"time it took: {time.time()-start_time}")
-                new_board, change, pos = checkers_utils.cal_turn_test(old_board)
-                start_time = time.time()
-                if change == True and pos[0] == True:                # a player moved someting
-                    x_event = pos[1][0]
-                    y_event = pos[1][1]
-                    ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # selecting a pawn
-                    board.handle_click(ip_event)
-                    self._draw(board)
-                    self.FPS.tick(60)
-                    game.check_jump(board)
+                new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
+                                                                               checkers_cam, verbose=False)
+                if quit_flag:
+                    break
+                if pos[0] == 1  or pos[0] == 2:                # a player moved someting
+                    if pos[0] == 1:
+                        x_event = pos[1][0]
+                        y_event = pos[1][1]
+                        ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # selecting a pawn
+                        board.handle_click(ip_event)
+                        self._draw(board)
+                        self.FPS.tick(60)
+                        game.check_jump(board)
                     x_event = pos[2][0]
                     y_event = pos[2][1]
-                    ip_event = (int(x_event)*80, int(y_event)*80)    # moving the selected pawn
+                    ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # moving the selected pawn
                     board.handle_click(ip_event)
             for self.event in pygame.event.get():                # checking if click Exit
                 if self.event.type == pygame.QUIT:
                     self.running = False
-                    self.camera_api.close_checkers_cam()
-                #if not game.is_game_over(board):
-                 #   if self.event.type == pygame.MOUSEBUTTONDOWN:
-                  #      a = self.event.pos
-                   #     print(a)
-                   #     board.handle_click(self.event.pos)
-                #if game.is_game_over(board):
-                    #game.message()
-                    #self.running = False
 
             self._draw(board)
             self.FPS.tick(60)
             
+        checkers_cam.release()
+        os.remove("/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/red/player-pawn.png")
+        os.remove("/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/black/player-pawn.png")
+        cv2.destroyAllWindows

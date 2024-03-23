@@ -1,4 +1,3 @@
-import pygame
 from Tile import Tile
 from Pawn import Pawn
 
@@ -71,7 +70,6 @@ class Board:
                 if len(clicked_tile.occupying_piece.valid_jumps()) == 0:
                     self.turn = 'red' if self.turn == 'black' else 'black'
         elif clicked_tile.occupying_piece is not None:
-            print("very weird, look at handle_click func")
             if clicked_tile.occupying_piece.color == self.turn:
                 self.selected_piece = clicked_tile.occupying_piece
 
