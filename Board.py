@@ -1,4 +1,3 @@
-import pygame
 from Tile import Tile
 from Pawn import Pawn
 

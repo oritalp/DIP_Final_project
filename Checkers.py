@@ -2,7 +2,7 @@ import pygame
 from Board import Board
 from Game import Game
 import checkers_utils
-import time
+
 import os
 import cv2
 
@@ -18,8 +18,6 @@ class Checkers:
 
     def main(self, window_width, window_height):
         checkers_cam = cv2.VideoCapture(0) 
-        # if not checkers_cam.isOpened():
-        #     checkers_cam.open(1)
         quit_flag = False #Ori added for debugging purposes only
         board_size = 8
         tile_width, tile_height = window_width // board_size, window_height // board_size
@@ -49,7 +47,6 @@ class Checkers:
         curr_holo_mat = None
         reset_flag = 0
         while self.running:
-            start_time = time.time()
             game.check_jump(board)
             if game.is_game_over(board):
                     game.message()
@@ -77,15 +74,6 @@ class Checkers:
             for self.event in pygame.event.get():                # checking if click Exit
                 if self.event.type == pygame.QUIT:
                     self.running = False
-
-                #if not game.is_game_over(board):
-                 #   if self.event.type == pygame.MOUSEBUTTONDOWN:
-                  #      a = self.event.pos
-                   #     print(a)
-                   #     board.handle_click(self.event.pos)
-                #if game.is_game_over(board):
-                    #game.message()
-                    #self.running = False
 
             self._draw(board)
             self.FPS.tick(60)

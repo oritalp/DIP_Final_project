@@ -1,14 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import board_utils
 from tkinter.filedialog import asksaveasfile
-from tkinter import filedialog as fd
-from collections import defaultdict
 import cv2
 
 
 def on_closing():
-    exit()
+    exit()      # exit the script
 
 
 def choose_red(computer_cam):
@@ -34,9 +31,8 @@ def choose_red(computer_cam):
     ww2 = ww // 2
     # define circles
     radius1 = min(hh2,ww2)
-    #radius2 = 75
-    xc = 1000  #540
-    yc = 500   #960
+    xc = 1000  
+    yc = 500   
     # draw filled circles in white on black background as masks
     mask = np.zeros_like(img)
     mask = cv2.circle(mask, (xc,yc), radius1, (255,255,255), -1)
@@ -62,9 +58,8 @@ def choose_white(computer_cam):
     ww2 = ww // 2
     # define circles
     radius1 = min(hh2,ww2)
-    #radius2 = 75
-    xc = 1000  #540
-    yc = 500   #960
+    xc = 1000  
+    yc = 500  
     # draw filled circles in white on black background as masks
     mask = np.zeros_like(img)
     mask = cv2.circle(mask, (xc,yc), radius1, (255,255,255), -1)
@@ -74,10 +69,14 @@ def choose_white(computer_cam):
     cv2.imwrite(save_path+file_name, img)
 
 def ip_to_matrix(intersections, pawns_location):
+    # Initialize a 8x8 binary matrix for board presence (0 for empty, 1 for occupied)
     board_bin = [[0 for _ in range(8)] for _ in range(8)]
+    # Initialize a 8x8 matrix for board colors ("" for empty, "rp" or "bp" for red or black pawns)
     board_color = [["" for _ in range(8)] for _ in range(8)]
+    # Lists to hold the unique x and y coordinates of the intersections
     unique_x = []
     unique_y = []
+    # Calculate the average position for each column and row based on intersections
     sorted_by_x = sorted(intersections, key=lambda x: x[0]) # Sorting by X-axis values
     sorted_by_y = sorted(intersections, key=lambda y: y[1]) # Sorting by Y-axis values
     for i in range(7):
@@ -90,6 +89,7 @@ def ip_to_matrix(intersections, pawns_location):
             y_avg +=  sorted_by_y[i*7+j][1]/7
         unique_y.append(round(x_avg))
         unique_x.append(round(y_avg))
+    # Place pawns on the board based on their locations
     for x, y, color, _ in pawns_location:
             grid_x = 0
             grid_y = 0
@@ -99,12 +99,12 @@ def ip_to_matrix(intersections, pawns_location):
             for j in range(7):
                 if y > unique_y[j]:
                     grid_y = j + 1
+            # Update the board's binary and color matrices with the pawn's presence and color
             board_bin[grid_x][grid_y] = 1  # Place a pawn on the board
             if color == 1:
                 board_color[grid_x][grid_y] = "rp"
             else:
                 board_color[grid_x][grid_y] = "bp"
-    board = [board_bin, board_color]
     return board_bin, board_color
 
 
@@ -113,30 +113,37 @@ def matrix_to_move(new_board, old_board):
     new_board_color = np.array(new_board[1])
     old_board_bin = np.array(old_board[0], dtype=int)
     old_board_color = np.array(old_board[1])
+    # Calculate the differences between the new and old presence/absence states to identify changes
     changes = np.subtract(new_board_bin, old_board_bin)
+    # Locate the positions where pieces have been removed (-1) and added (1)
     move_from = np.where(changes == -1)
     move_to = np.where(changes == 1)
     move_occurred = (len(move_to[0]) != 0)
+    # Initialize variables to track the type of move and positions involved
     move = 0
     pown_move_to = None
     pown_move_from = None
+    # Process the move if one has occurred
     if move_occurred:
         if len(move_to[0]) > 1 and len(move_from[0]) == 0:    # probably hand is covering the bord
             pass
-        elif len(move_to[0]) > 1:
+        elif len(move_to[0]) > 1: # Error: Two pieces moved simultaneously
             move = 3
-            print("two powns had moved in the same image")               # TODO: need to alert error
-        elif len(move_from[0]) == 1:   # pown moved     
-            move = 1                                  
+            print("two powns had moved in the same image")               
+        elif len(move_from[0]) == 1:   # A pown moved     
+            move = 1
+            # Convert positions from matrix indices to game positions                                  
             pown_move_from = [move_from[1][0],move_from[0][0]]
             pown_move_to = [move_to[1][0],move_to[0][0]]
-        elif len(move_from[0]) == 0:
+        elif len(move_from[0]) == 0:   # Error: A piece was added unexpectedly
             move = 4
             print("someting went wrong, pown added to the game")
-        else:                                                       #pown moves and anoder eaten
+        else:  # A pawn was moved and another was eaten
             move = 2
+            # Identify the position to which the pawn moved
             pown_move_to = [move_to[1][0],move_to[0][0]]
             turn_color = new_board_color[pown_move_to[1],pown_move_to[0]]
+            # Identify the pawn that was moved based on color
             for i in range(len(move_from[0])):
                 pown_pos = [move_from[0][i],move_from[1][i]]
                 pown_color = old_board_color[pown_pos[0]][pown_pos[1]]
@@ -144,7 +151,7 @@ def matrix_to_move(new_board, old_board):
                     pown_move_from = pown_pos
                     break
     pos = (move, pown_move_from, pown_move_to)    
-    return pos      # pos = (True/False, (x1,y1), (x2,y2))
+    return pos  # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of error
 
 
 
@@ -195,12 +202,13 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
 
     if not quit_flag:
         assert(reset_flag == 0)
-    board_list = []     # for debug
+    # thake the last 5 good sampels and doing majority vote
+    #board_list = []     # for debug
     vote_bin_matrix = [[0 for _ in range(8)] for _ in range(8)]
     new_board = [[[0 for _ in range(8)] for _ in range(8)], [["" for _ in range(8)] for _ in range(8)]]
     for vote_num in range(num_of_vote):
         board_bin, board_color = ip_to_matrix(locs_list[vote_num][0], locs_list[vote_num][1])
-        board_list.append([board_bin, board_color])
+        #board_list.append([board_bin, board_color])
         for i in range(8):
             for j in range(8):
                 if board_bin[i][j] == 1:
@@ -212,7 +220,7 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
     pos  = matrix_to_move(new_board, old_board)
     # if pos[0] == 0:     # TODO: fix with nadav
     #     new_board = old_board
-    return new_board, pos, curr_holo_mat, reset_flag   # pos = (True/False, (x1,y1), (x2,y2))
+    return new_board, pos, curr_holo_mat, reset_flag   # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of erre
 
 def cal_turn_test(old_board):
     change = True
@@ -222,36 +230,3 @@ def cal_turn_test(old_board):
     pos = matrix_to_move(new_board, old_board)
     return new_board, change, pos
 
-
-def cal_turn_test2(old_board, curr_holo_mat, reset_flag, checkers_cam):
-    num_of_vote = 5
-    board_list = []
-    vote_bin_matrix = [[0 for _ in range(8)] for _ in range(8)]
-    new_board = [[[0 for _ in range(8)] for _ in range(8)], [["" for _ in range(8)] for _ in range(8)]]
-    color_vote = [["" for _ in range(8)] for _ in range(8)]
-    color_vote[3][5] = "red"
-    color_vote[5][5] = "black"
-    vote1 = [[0 for _ in range(8)] for _ in range(8)]
-    vote1[3][5] = 1
-    vote2 = [[0 for _ in range(8)] for _ in range(8)]
-    vote2[3][5] = 1
-    vote3 = [[0 for _ in range(8)] for _ in range(8)]
-    vote3[3][5] = 1
-    vote4 = [[0 for _ in range(8)] for _ in range(8)]
-    vote4[5][5] = 1
-    vote5 = [[0 for _ in range(8)] for _ in range(8)]
-    vote5[5][5] = 1
-    locs_list = [[vote1,color_vote],[vote2,color_vote],[vote3,color_vote],[vote4,color_vote],[vote5,color_vote]]
-    for vote_num in range(num_of_vote):
-        board_bin, board_color = locs_list[vote_num][0], locs_list[vote_num][1]
-        board_list.append([board_bin, board_color])
-        for i in range(8):
-            for j in range(8):
-                if board_bin[i][j] == 1:
-                    vote_bin_matrix[i][j] += 1
-                    if vote_bin_matrix[i][j] > 2:
-                        new_board[0][i][j] = 1
-                        new_board[1][i][j] = board_color[i][j]
-
-    pos = matrix_to_move(new_board, old_board)
-    return new_board, pos, curr_holo_mat, reset_flag 
