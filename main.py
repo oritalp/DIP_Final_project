@@ -23,6 +23,7 @@ ref_img = cv2.imread("images_taken/new_alligned.jpg")
 #Shelly's check
 computer_cam = cv2.VideoCapture(2)
 root= Tk()
+root.protocol("WM_DELETE_WINDOW", checkers_utils.on_closing)
 root.geometry("750x250")
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)

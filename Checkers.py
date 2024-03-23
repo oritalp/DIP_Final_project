@@ -3,6 +3,7 @@ from Board import Board
 from Game import Game
 import checkers_utils
 import time
+import os
 import cv2
 
 class Checkers:
@@ -56,13 +57,11 @@ class Checkers:
 
             else:
                 old_board = new_board
-                print(f"time it took: {time.time()-start_time}")
                 new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
-                                                                                    checkers_cam, verbose=False)
+                                                                               checkers_cam, verbose=False)
                 if quit_flag:
                     break
-                start_time = time.time()
-                if pos[0] != 0:                # a player moved someting
+                if pos[0] == 1  or pos[0] == 2:                # a player moved someting
                     if pos[0] == 1:
                         x_event = pos[1][0]
                         y_event = pos[1][1]
@@ -92,4 +91,6 @@ class Checkers:
             self.FPS.tick(60)
             
         checkers_cam.release()
+        os.remove("/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/red/player-pawn.png")
+        os.remove("/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/black/player-pawn.png")
         cv2.destroyAllWindows

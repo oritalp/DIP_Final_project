@@ -17,7 +17,6 @@ def choose_red(computer_cam):
         img = frame
     else:
         print(f"Error: Failed to capture frame from camera.")
-    #cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     B, G, R = cv2.split(img)
     # Strengthen the red component
     R_strengthened = np.clip(R.astype(np.float32) * 9, 0, 255).astype(np.uint8)  # Adjust the factor as needed
@@ -50,7 +49,7 @@ def choose_red(computer_cam):
 def choose_white(computer_cam):
     ret, frame = computer_cam.read()
     if ret:
-        img = frame
+        img = cv2.cvtColor(frame, cv2.COLOR_BGR2BGRA) #adding an alpha channel
     else:
         print(f"Error: Failed to capture frame from camera.")
     cv2.imshow("window", img)
@@ -122,10 +121,12 @@ def matrix_to_move(new_board, old_board):
     pown_move_to = None
     pown_move_from = None
     if move_occurred:
-        if len(move_to[0]) > 1:
+        if len(move_to[0]) > 1 and len(move_from[0]) == 0:    # probably hand is covering the bord
+            pass
+        elif len(move_to[0]) > 1:
             move = 3
             print("two powns had moved in the same image")               # TODO: need to alert error
-        if len(move_from[0]) == 1:   # pown moved     
+        elif len(move_from[0]) == 1:   # pown moved     
             move = 1                                  
             pown_move_from = [move_from[1][0],move_from[0][0]]
             pown_move_to = [move_to[1][0],move_to[0][0]]
@@ -209,6 +210,8 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
                         new_board[1][i][j] = board_color[i][j]
 
     pos  = matrix_to_move(new_board, old_board)
+    # if pos[0] == 0:     # TODO: fix with nadav
+    #     new_board = old_board
     return new_board, pos, curr_holo_mat, reset_flag   # pos = (True/False, (x1,y1), (x2,y2))
 
 def cal_turn_test(old_board):
