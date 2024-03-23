@@ -95,7 +95,8 @@ def align_board(img_to_al, ref_img, res_holo, h, crop_width=100, crop_height=0):
 
 def get_intersections(res_align, img, max_lines=14, crop_width_left=55, crop_width_right=65
                       , crop_height_bottom=80, crop_height_top=75,
-                      rho_reso=3, theta_reso=5*np.pi/180, verbose=False):
+                      rho_reso=3, theta_reso=5*np.pi/180, verbose=False, hough_threshold=50,
+                      canny_low_th = 50, canny_high_th = 400):
     """
     Finds the intersections of lines in an image.
 
@@ -127,9 +128,13 @@ def get_intersections(res_align, img, max_lines=14, crop_width_left=55, crop_wid
         # Convert the image to grayscale
         img_crp_gray = cv2.cvtColor(img_crp, cv2.COLOR_BGR2GRAY)
         # Apply Canny edge detection
-        edges = cv2.Canny(img_crp_gray, 50, 400)
+        edges = cv2.Canny(img_crp_gray, canny_low_th, canny_high_th)
+        if verbose:
+            plt.imshow(edges, cmap='gray')
+            plt.title(f'Canny Edges with low threshold: {canny_low_th} and high threshold: {canny_high_th}')
+            plt.show()
         # Compute the Hough lines
-        lines = cv2.HoughLines(edges, rho_reso, theta_reso, 50)
+        lines = cv2.HoughLines(edges, rho_reso, theta_reso, hough_threshold)
         if lines is None:
             lines = []
         lines = lines[:max_lines]
@@ -210,7 +215,7 @@ def get_circles(img, canny_high_th=60, verbose=False):
             if (checked_pixel[2] >= 220 and checked_pixel[0] >= 80 and checked_pixel[0] <= 120):
                 output_list.append((i[1] - 1, i[0] - 1, 0, i[2]))  # append as white
                 counter += 1
-            elif (checked_pixel[0] <= 25 or (checked_pixel[0] >= 140 and checked_pixel[0] <= 190)):
+            elif (checked_pixel[0] <= 25 or (checked_pixel[0] >= 140 and checked_pixel[0] <= 190)): #the second and third conditions are due to some light chnages that can appear in the image
                 output_list.append((i[1] - 1, i[0] - 1, 1, i[2]))  # append as orange
                 counter += 1
             else:
@@ -382,15 +387,18 @@ if __name__ == "__main__":
     img_to_al = cv2.imread("images_taken/final_exam_0.jpg")
     ref_img = cv2.imread("images_taken/new_alligned.jpg")
 
-    # res, h = compute_holo_mat(img_to_al, ref_img, max_features=800, keep_percent=0.7)
-    # if res ==0:
-    #     res, aligned_img = align_board(img_to_al, ref_img, res, h)
-    #     intersections = get_intersections(res, aligned_img, verbose=True)
+    res, h = compute_holo_mat(img_to_al, ref_img, max_features=800, keep_percent=0.7)
+    if res ==0:
+        res, aligned_img = align_board(img_to_al, ref_img, res, h)
+
+
+
+    
 
     #     print(check_grid_spacing(intersections, verbose=True))
 
-    camera = image_sample.Camera_API()
-    camera.stream_video(ref_img, camera="xy", save_frame="new_pic", verbose=True)
+    # camera = image_sample.Camera_API()
+    # camera.stream_video(ref_img, camera="xy", save_frame="new_pic", verbose=True)
     
 
 
