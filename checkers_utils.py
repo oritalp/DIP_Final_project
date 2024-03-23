@@ -118,18 +118,22 @@ def matrix_to_move(new_board, old_board):
     move_from = np.where(changes == -1)
     move_to = np.where(changes == 1)
     move_occurred = (len(move_to[0]) != 0)
+    move = 0
     pown_move_to = None
     pown_move_from = None
     if move_occurred:
         if len(move_to[0]) > 1:
-            move_occurred = False
+            move = 3
             print("two powns had moved in the same image")               # TODO: need to alert error
-        if len(move_from[0]) == 1:                                  #pown moved
+        if len(move_from[0]) == 1:   # pown moved     
+            move = 1                                  
             pown_move_from = [move_from[1][0],move_from[0][0]]
             pown_move_to = [move_to[1][0],move_to[0][0]]
         elif len(move_from[0]) == 0:
+            move = 4
             print("someting went wrong, pown added to the game")
         else:                                                       #pown moves and anoder eaten
+            move = 2
             pown_move_to = [move_to[1][0],move_to[0][0]]
             turn_color = new_board_color[pown_move_to[1],pown_move_to[0]]
             for i in range(len(move_from[0])):
@@ -138,7 +142,7 @@ def matrix_to_move(new_board, old_board):
                 if turn_color == pown_color:
                     pown_move_from = pown_pos
                     break
-    pos = (move_occurred, pown_move_from, pown_move_to)    
+    pos = (move, pown_move_from, pown_move_to)    
     return pos      # pos = (True/False, (x1,y1), (x2,y2))
 
 

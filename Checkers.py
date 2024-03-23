@@ -62,14 +62,15 @@ class Checkers:
                 if quit_flag:
                     break
                 start_time = time.time()
-                if pos[0] == True:                # a player moved someting
-                    x_event = pos[1][0]
-                    y_event = pos[1][1]
-                    ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # selecting a pawn
-                    board.handle_click(ip_event)
-                    self._draw(board)
-                    self.FPS.tick(60)
-                    game.check_jump(board)
+                if pos[0] != 0:                # a player moved someting
+                    if pos[0] == 1:
+                        x_event = pos[1][0]
+                        y_event = pos[1][1]
+                        ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # selecting a pawn
+                        board.handle_click(ip_event)
+                        self._draw(board)
+                        self.FPS.tick(60)
+                        game.check_jump(board)
                     x_event = pos[2][0]
                     y_event = pos[2][1]
                     ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # moving the selected pawn
