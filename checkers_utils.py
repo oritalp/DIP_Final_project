@@ -76,28 +76,37 @@ def choose_white(computer_cam):
 
 def ip_to_matrix(intersections, pawns_location):
     board_bin = [[0 for _ in range(8)] for _ in range(8)]
-    bord_color = [["" for _ in range(8)] for _ in range(8)]
+    board_color = [["" for _ in range(8)] for _ in range(8)]
     unique_x = []
     unique_y = []
+    sorted_by_x = sorted(intersections, key=lambda x: x[0]) # Sorting by X-axis values
+    sorted_by_y = sorted(intersections, key=lambda y: y[1]) # Sorting by Y-axis values
     for i in range(7):
         x_avg = 0
         y_avg = 0
         for j in range(7):
-            a = intersections[i+j*7][0]
-            b = intersections[i*7+j][1]
-            x_avg +=  intersections[i+j*7][0]/7
-            y_avg +=  intersections[i*7+j][1]/7
-        unique_x.append(round(x_avg))
-        unique_y.append(round(y_avg))
-    x_to_grid = {pixel: index for index, pixel in enumerate(unique_x)}
-    y_to_grid = {pixel: index for index, pixel in enumerate(unique_y)}
+            a = sorted_by_x[i*7+j][0]
+            b = sorted_by_y[i*7+j][1]
+            x_avg +=  sorted_by_x[i*7+j][0]/7
+            y_avg +=  sorted_by_y[i*7+j][1]/7
+        unique_y.append(round(x_avg))
+        unique_x.append(round(y_avg))
     for x, y, color, _ in pawns_location:
-            grid_x = x_to_grid[min(unique_x, key=lambda k: 0>k-x)]
-            grid_y = y_to_grid[min(unique_y, key=lambda k: 0>k-y)]
-            board_bin[grid_y][grid_x] = 1  # Place a pawn on the board
-            bord_color[grid_y][grid_x] = color
-    board = [board_bin, bord_color]
-    return board_bin, bord_color
+            grid_x = 0
+            grid_y = 0
+            for i in range(7):
+                if x > unique_x[i]:
+                    grid_x = i + 1
+            for j in range(7):
+                if y > unique_y[j]:
+                    grid_y = j + 1
+            board_bin[grid_x][grid_y] = 1  # Place a pawn on the board
+            if color == 1:
+                board_color[grid_x][grid_y] = "rp"
+            else:
+                board_color[grid_x][grid_y] = "bp"
+    board = [board_bin, board_color]
+    return board_bin, board_color
 
 
 def matrix_to_move(new_board, old_board):
@@ -185,7 +194,7 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
     vote_bin_matrix = [[0 for _ in range(8)] for _ in range(8)]
     new_board = [[[0 for _ in range(8)] for _ in range(8)], [["" for _ in range(8)] for _ in range(8)]]
     for vote_num in range(num_of_vote):
-        board_bin, board_color = ip_to_matrix(locs_list[0][vote_num], locs_list[1][vote_num])
+        board_bin, board_color = ip_to_matrix(locs_list[vote_num][0], locs_list[vote_num][1])
         board_list.append([board_bin, board_color])
         for i in range(8):
             for j in range(8):
@@ -195,7 +204,7 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
                         new_board[0][i][j] = 1
                         new_board[1][i][j] = board_color[i][j]
 
-    pos,  = matrix_to_move(new_board, old_board)
+    pos  = matrix_to_move(new_board, old_board)
     return new_board, pos, curr_holo_mat, reset_flag   # pos = (True/False, (x1,y1), (x2,y2))
 
 def cal_turn_test(old_board):

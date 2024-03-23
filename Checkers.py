@@ -57,7 +57,7 @@ class Checkers:
             else:
                 old_board = new_board
                 print(f"time it took: {time.time()-start_time}")
-                new_board, pos, curr_holo_mat, reset_flag, quit_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
+                new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
                                                                                     checkers_cam, verbose=False)
                 if quit_flag:
                     break
@@ -72,7 +72,7 @@ class Checkers:
                     game.check_jump(board)
                     x_event = pos[2][0]
                     y_event = pos[2][1]
-                    ip_event = (int(x_event)*80, int(y_event)*80)    # moving the selected pawn
+                    ip_event = (int(x_event)*80+5, int(y_event)*80+5)    # moving the selected pawn
                     board.handle_click(ip_event)
             for self.event in pygame.event.get():                # checking if click Exit
                 if self.event.type == pygame.QUIT:
