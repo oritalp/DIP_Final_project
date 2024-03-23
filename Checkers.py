@@ -79,6 +79,6 @@ class Checkers:
             self.FPS.tick(60)
             
         checkers_cam.release()
-        os.remove("/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/red/player-pawn.png")
-        os.remove("/Users/shelihendel/Documents/python/IP/DIP_Final_project/checkers_images/black/player-pawn.png")
+        os.remove("checkers_images/red/player-pawn.png")
+        os.remove("checkers_images/black/player-pawn.png")
         cv2.destroyAllWindows
