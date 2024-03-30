@@ -393,13 +393,8 @@ if __name__ == "__main__":
         res, aligned_img = align_board(img_to_al, ref_img, res, h)
 
 
-
-    
-
-    #     print(check_grid_spacing(intersections, verbose=True))
-
-    # camera = image_sample.Camera_API()
-    # camera.stream_video(ref_img, camera="xy", save_frame="new_pic", verbose=True)
+    camera = image_sample.Camera_API()
+    camera.stream_video(ref_img, camera="xy", save_frame="new_pic", verbose=True)
     
 
 

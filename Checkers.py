@@ -2,7 +2,7 @@ import pygame
 from Board import Board
 from Game import Game
 import checkers_utils
-from Path import path
+from Path import path, checkers_cam_num
 
 import os
 import cv2
@@ -18,7 +18,7 @@ class Checkers:
         pygame.display.update()
 
     def main(self, window_width, window_height):
-        checkers_cam = cv2.VideoCapture(0) 
+        checkers_cam = cv2.VideoCapture(checkers_cam_num) 
         quit_flag = False #Ori added for debugging purposes only
         board_size = 8
         tile_width, tile_height = window_width // board_size, window_height // board_size
