@@ -57,13 +57,13 @@ class Camera_API:
                     reset_flag = 0
 
                     
-                if cv2.waitKey(120) & 0xFF == ord('q'): # Press 'q' to exit
+                if cv2.waitKey(1) & 0xFF == ord('q'): # Press 'q' to exit
                     break
-                elif cv2.waitKey(120) & 0xFF == ord('s'): #press 's' to save frame
+                elif cv2.waitKey(1) & 0xFF == ord('s'): #press 's' to save frame
                     self.save_frame(frame, save_frame +  "_" + str(counter))
                     print(f"Frame saved as {save_frame + '_' + str(counter)}.jpg")
                     counter += 1
-                elif cv2.waitKey(120) & 0xFF == ord('r'):
+                elif cv2.waitKey(1) & 0xFF == ord('r'):
                     reset_flag = 1
                     print("A reset request has been made")
                 
