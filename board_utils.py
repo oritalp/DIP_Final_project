@@ -94,10 +94,10 @@ def align_board(img_to_al, ref_img, res_holo, h, crop_width=100, crop_height=0):
         return 0, aligned_img
 
 
-def get_intersections(res_align, img, max_lines=14, crop_width_left=55, crop_width_right=65
-                      , crop_height_bottom=80, crop_height_top=75,
-                      rho_reso=3, theta_reso=5*np.pi/180, verbose=False, hough_threshold=50,
-                      canny_low_th = 50, canny_high_th = 400):
+def get_intersections(res_align, img, max_lines=14, crop_width_left=40, crop_width_right=60
+                      , crop_height_bottom=80, crop_height_top=65,
+                      rho_reso=3, theta_reso=5*np.pi/180, verbose=False, hough_threshold=160,
+                      canny_low_th = 150, canny_high_th = 400):
     """
     Finds the intersections of lines in an image.
 
@@ -125,7 +125,7 @@ def get_intersections(res_align, img, max_lines=14, crop_width_left=55, crop_wid
     
     else:
 
-        img_crp = img[crop_height_bottom:img.shape[0]-crop_height_top, crop_width_left:img.shape[1]-crop_width_right] # Crop the image
+        img_crp = img[crop_height_top:img.shape[0]-crop_height_bottom, crop_width_left:img.shape[1]-crop_width_right] # Crop the image
         # Convert the image to grayscale
         img_crp_gray = cv2.cvtColor(img_crp, cv2.COLOR_BGR2GRAY)
         # Apply Canny edge detection
@@ -150,7 +150,7 @@ def get_intersections(res_align, img, max_lines=14, crop_width_left=55, crop_wid
                 b = np.array([[rho1], [rho2]])
                 x0, y0 = np.linalg.solve(A, b)
                 x0, y0 = int(np.round(x0)), int(np.round(y0))
-                intersections.append((x0+crop_width_left, y0+crop_height_bottom))
+                intersections.append((x0+crop_width_left, y0+crop_height_top))
         if verbose:
             #draw the lines on the image
             for line in lines[:max_lines]:
@@ -306,7 +306,9 @@ def get_locations(img_to_al, ref_img, last_holo_mat, reset_flag=0, min_desc=100,
     if break_flag or (reset_flag == 0):
         circles = get_circles(aligned_img, canny_high_th=canny_high_th, verbose=verbose_circles)
 
+
     if verbose:
+        aligned_img_clean = aligned_img.copy()
         for point in intersections:
             cv2.circle(aligned_img, point, 5, (0, 0, 255), 3)
         for i in circles:
@@ -317,10 +319,10 @@ def get_locations(img_to_al, ref_img, last_holo_mat, reset_flag=0, min_desc=100,
             cv2.circle(aligned_img, (i[1], i[0]), i[3], color, 2)
             # draw the center of the circle
             cv2.circle(aligned_img, (i[1], i[0]), 2, color, 3)
-            print(f"Time to process the image: {time.time() - start_time}")
+            # print(f"Time to process the image: {time.time() - start_time}")
 
 
-    return result, aligned_img, new_holo_mat, intersections, circles
+    return result, aligned_img, new_holo_mat, intersections, circles, aligned_img_clean
 
 def reduce_list(lst, tollerance=8):
     """
@@ -385,21 +387,21 @@ def check_grid_spacing(intersections, spacing_tol=10, tol_same_point=8, verbose=
     return True
 
 if __name__ == "__main__":
-    img_to_al = cv2.imread(path + "images_taken/final_exam_0.jpg")
-    ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
+    img_to_al = cv2.imread("images_taken/hand_pics_0.jpg")
+    ref_img = cv2.imread("images_taken/new_alligned.jpg")
 
-    res, h = compute_holo_mat(img_to_al, ref_img, max_features=800, keep_percent=0.7)
-    if res ==0:
-        res, aligned_img = align_board(img_to_al, ref_img, res, h)
+    # res, h = compute_holo_mat(img_to_al, ref_img)
+    # res_align, aligned_img = align_board(img_to_al, ref_img, res, h)
+
+    # if res_align == 0:
+    #     intersections = get_intersections(res_align, aligned_img,hough_threshold=180, canny_low_th=50, verbose=True,
+    #                                        crop_width_left=40, crop_width_right=60, crop_height_bottom=80, crop_height_top=65)
+    # else:
+    #     print("Error in alignment")
 
 
-
-    
-
-    #     print(check_grid_spacing(intersections, verbose=True))
-
-    # camera = image_sample.Camera_API()
-    # camera.stream_video(ref_img, camera="xy", save_frame="new_pic", verbose=True)
+    camera = image_sample.Camera_API()
+    camera.stream_video(ref_img, camera="z", save_frame="hand_pics_2", verbose=True)
     
 
 

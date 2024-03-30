@@ -13,7 +13,7 @@ class Camera_API:
         # Initialize camera
         if not video:
             self.checkers_cam = cv2.VideoCapture(0)
-            self.computer_cam = cv2.VideoCapture(2)
+            self.computer_cam = cv2.VideoCapture(1)
 
         else:
             print("using video")
@@ -37,10 +37,10 @@ class Camera_API:
         counter = 0
         while True:
             ret, frame = cap.read()
-            print(f"reset_flag: {reset_flag}")
-            print(f"current res is: {res}")
+            # print(f"reset_flag: {reset_flag}")
+            # print(f"current res is: {res}")
             if ret:
-                res, aligned_frame, curr_holo_mat,_, _ = board_utils.get_locations(frame, ref_img, curr_holo_mat, reset_flag,
+                res, aligned_frame, curr_holo_mat,_, _, aligned_img_clean = board_utils.get_locations(frame, ref_img, curr_holo_mat, reset_flag,
                                                                               verbose=verbose)
                 if res != 0:
                     cv2.putText(frame, "Couldn't find the board's inner corners", (10, 30),
@@ -60,7 +60,7 @@ class Camera_API:
                 if cv2.waitKey(1) & 0xFF == ord('q'): # Press 'q' to exit
                     break
                 elif cv2.waitKey(1) & 0xFF == ord('s'): #press 's' to save frame
-                    self.save_frame(frame, save_frame +  "_" + str(counter))
+                    self.save_frame(aligned_img_clean, save_frame +  "_" + str(counter))
                     print(f"Frame saved as {save_frame + '_' + str(counter)}.jpg")
                     counter += 1
                 elif cv2.waitKey(1) & 0xFF == ord('r'):
