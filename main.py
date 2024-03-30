@@ -4,14 +4,14 @@ import checkers_utils
 from Checkers import Checkers
 from tkinter import *
 from tkinter import ttk
-from Path import path
+from Path import path, computer_cam_num
 
 
 #Ori's check
 ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
  
 #Shelly's check
-computer_cam = cv2.VideoCapture(2)
+computer_cam = cv2.VideoCapture(computer_cam_num)
 # GUI start
 root= Tk()
 root.protocol("WM_DELETE_WINDOW", checkers_utils.on_closing)
