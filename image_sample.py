@@ -111,6 +111,8 @@ class Camera_API:
         else:
             print("Error: Computer camera is already opened.")
 
+
+
 ######################################### Ref utils #########################################
 
     def get_frames_with_skip(self, skip_count):
