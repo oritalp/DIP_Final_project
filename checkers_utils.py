@@ -151,6 +151,8 @@ def matrix_to_move(new_board, old_board):
                 if turn_color == pown_color:
                     pown_move_from = pown_pos
                     break
+    elif len(move_from[0]) != 0:   #pown had dissapired
+        pass
     pos = (move, pown_move_from, pown_move_to)    
     return pos  # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of error
 
