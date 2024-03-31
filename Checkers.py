@@ -80,6 +80,10 @@ class Checkers:
             self.FPS.tick(60)
             
         checkers_cam.release()
-        os.remove(path + "checkers_images/red/player-pawn.png")
-        os.remove(path + "checkers_images/black/player-pawn.png")
+        file = path + "checkers_images/red/player-pawn.png"
+        if os.path.isfile(file): 
+            os.remove(file)
+        file = path + "checkers_images/black/player-pawn.png"
+        if os.path.isfile(file): 
+            os.remove(file)
         cv2.destroyAllWindows

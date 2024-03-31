@@ -14,8 +14,13 @@ ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
 computer_cam = cv2.VideoCapture(computer_cam_num)
 # GUI start
 root= Tk()
+root.title("Interactive Checkers")
+app_w = 800
+app_h = 250
+x = root.winfo_screenwidth()/2 - app_w/2
+y = root.winfo_screenheight()/2 - app_h/2
 root.protocol("WM_DELETE_WINDOW", checkers_utils.on_closing)
-root.geometry("750x250")
+root.geometry(f'{app_w}x{app_h}+{int(x)}+{int(y)}')
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)

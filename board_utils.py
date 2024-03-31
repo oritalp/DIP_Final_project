@@ -306,9 +306,9 @@ def get_locations(img_to_al, ref_img, last_holo_mat, reset_flag=0, min_desc=100,
     if break_flag or (reset_flag == 0):
         circles = get_circles(aligned_img, canny_high_th=canny_high_th, verbose=verbose_circles)
 
-
+    aligned_img_clean = aligned_img.copy()
+    
     if verbose:
-        aligned_img_clean = aligned_img.copy()
         for point in intersections:
             cv2.circle(aligned_img, point, 5, (0, 0, 255), 3)
         for i in circles:
@@ -387,8 +387,8 @@ def check_grid_spacing(intersections, spacing_tol=10, tol_same_point=8, verbose=
     return True
 
 if __name__ == "__main__":
-    img_to_al = cv2.imread("images_taken/hand_pics_0.jpg")
-    ref_img = cv2.imread("images_taken/new_alligned.jpg")
+    img_to_al = cv2.imread(path + "images_taken/hand_pics_0.jpg")
+    ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
 
     # res, h = compute_holo_mat(img_to_al, ref_img)
     # res_align, aligned_img = align_board(img_to_al, ref_img, res, h)
@@ -401,7 +401,7 @@ if __name__ == "__main__":
 
 
     camera = image_sample.Camera_API()
-    camera.stream_video(ref_img, camera="z", save_frame="hand_pics_2", verbose=True)
+    camera.stream_video(ref_img, camera="xy", save_frame="hand_pics_2", verbose=True)
     
 
 
