@@ -394,7 +394,8 @@ if __name__ == "__main__":
     # res_align, aligned_img = align_board(img_to_al, ref_img, res, h)
 
     # if res_align == 0:
-    #     intersections = get_intersections(res_align, aligned_img,hough_threshold=180, canny_low_th=50, verbose=True,
+    #     in
+    # tersections = get_intersections(res_align, aligned_img,hough_threshold=180, canny_low_th=50, verbose=True,
     #                                        crop_width_left=40, crop_width_right=60, crop_height_bottom=80, crop_height_top=65)
     # else:
     #     print("Error in alignment")
