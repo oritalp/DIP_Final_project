@@ -20,7 +20,7 @@ class Checkers:
         text_rect = text_surface.get_rect(center=(self.screen.get_width()/2, self.screen.get_height()/2))
          # Create a background rectangle slightly larger than the text
         background_rect = pygame.Rect(text_rect.left - 10, text_rect.top - 10, text_rect.width + 20, text_rect.height + 20)
-        pygame.draw.rect(self.screen, (0, 0, 0), background_rect)  # Draw the background rectangle in black
+        pygame.draw.rect(self.screen, (0, 0, 0), background_rect)  # Draw the background rectangle in white
         self.screen.blit(text_surface, text_rect)
         pygame.display.update()
         pygame.time.wait(2000)  # Display the message for 2 seconds
@@ -70,6 +70,7 @@ class Checkers:
         pygame.display.update()
 
     def main(self, window_width, window_height):
+        game_start = True
         error_dict = {"0": "waiting", "1":"", "2":"", "3":"two powns had moved in the same image", "4": "someting went wrong, pown added to the game", "5": "The board must be initialized"}
         checkers_cam = cv2.VideoCapture(checkers_cam_num) 
         quit_flag = False #Ori added for debugging purposes only
@@ -111,8 +112,8 @@ class Checkers:
                 if legal_turn:
                     pass
                 old_board = new_board if legal_turn else old_board
-                new_board, pos, curr_holo_mat, reset_flag = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
-                                                                               checkers_cam, verbose=False)
+                new_board, pos, curr_holo_mat, reset_flag, game_start = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
+                                                                               checkers_cam, game_start, verbose=False)
                 if quit_flag:
                     break
                 if pos[0] == 1  or pos[0] == 2:                           # if a player moved something
@@ -150,13 +151,12 @@ class Checkers:
                     if pos[0] == 0:
                         err_msg = f"Waiting for the {board.turn} player to play"
                     else:
-                        err_msg = error_dict.get(pos[0])
+                        err_msg = error_dict.get(str(pos[0]))
                     self.display_illegal_move_message(err_msg)
 
             for self.event in pygame.event.get():                               # checking if click Exit
                 if self.event.type == pygame.QUIT:
                     self.running = False
-                    self.camera_api.close_checkers_cam()
 
 
             self._draw(board)
@@ -166,7 +166,7 @@ class Checkers:
         file = path + "checkers_images/red/player-pawn.png"
         if os.path.isfile(file): 
             os.remove(file)
-        file = path + "checkers_images/black/player-pawn.png"
+        file = path + "checkers_images/white/player-pawn.png"
         if os.path.isfile(file): 
             os.remove(file)
         cv2.destroyAllWindows

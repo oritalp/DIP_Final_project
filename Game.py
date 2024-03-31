@@ -5,7 +5,7 @@ class Game:
     # checks if both colors still has a piece
     def check_piece(self, board):
         red_piece = 0
-        black_piece = 0
+        white_piece = 0
         for y in range(board.board_size):
             for x in range(board.board_size):
                 tile = board.get_tile_from_pos((x, y))
@@ -13,13 +13,13 @@ class Game:
                     if tile.occupying_piece.color == "red":
                         red_piece += 1
                     else:
-                        black_piece += 1
-        return red_piece, black_piece
+                        white_piece += 1
+        return red_piece, white_piece
     
     def is_game_over(self, board):
-        red_piece, black_piece = self.check_piece(board)
-        if red_piece == 0 or black_piece == 0:
-            self.winner = "red" if red_piece > black_piece else "white"
+        red_piece, white_piece = self.check_piece(board)
+        if red_piece == 0 or white_piece == 0:
+            self.winner = "red" if red_piece > white_piece else "white"
             return True
         else:
             return False

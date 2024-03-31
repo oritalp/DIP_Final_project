@@ -8,7 +8,7 @@ class Board:
         self.board_size = board_size
         self.selected_piece = None
 
-        self.turn = "black"
+        self.turn = "white"
         self.is_jump = False
 
         self.config = [
@@ -45,7 +45,7 @@ class Board:
                 tile = self.get_tile_from_pos((x_ind, y_ind))
                 if x != '':
                     if x[-1] == 'p':
-                        color = 'red' if x[0] == 'r' else 'black'
+                        color = 'red' if x[0] == 'r' else 'white'
                         tile.occupying_piece = Pawn(x_ind, y_ind, color, self)
 
     def handle_click(self, pos,legal_turn ):                  # Nadav added boolian parameter that determine if the turn was legal
@@ -71,11 +71,11 @@ class Board:
                 return(legal_turn, "there is no pawn in the position that IP detected")
         elif self.selected_piece._move(clicked_tile):               # אם הצליח לבצע את ההזזה
             if not self.is_jump:
-                self.turn = 'red' if self.turn == 'black' else 'black'
+                self.turn = 'red' if self.turn == 'white' else 'white'
                 return(legal_turn, "All fine capara")
             else:
                 if len(clicked_tile.occupying_piece.valid_jumps()) == 0:
-                    self.turn = 'red' if self.turn == 'black' else 'black'
+                    self.turn = 'red' if self.turn == 'white' else 'white'
                     return(legal_turn, "All fine capara")
         elif clicked_tile.occupying_piece is not None:
             print("very weird, look at handle_click func")
