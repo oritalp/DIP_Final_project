@@ -22,10 +22,12 @@ def choose_red(computer_cam):
     alpha_channel = np.ones(R.shape, dtype=R.dtype) * 255  # Fully opaque. Adjust if you want transparency.
     # Merge the B, G, R, and alpha channels into one BGRA image
     img = cv2.merge((B, G, R_strengthened, alpha_channel))
+
     cv2.imshow("window", img)
     cv2.waitKey(1300)
     cv2.destroyWindow("window")
     save_path = path + "checkers_images/red/"
+
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2
@@ -34,13 +36,14 @@ def choose_red(computer_cam):
     radius1 = min(hh2,ww2)
     xc = 1000  
     yc = 500   
-    # draw filled circles in white on black background as masks
+    # draw filled circles in white on white background as masks
     mask = np.zeros_like(img)
     mask = cv2.circle(mask, (xc,yc), radius1, (255,255,255), -1)
     # put mask into alpha channel of input
     img[:, :, 3] = mask[:,:,0]
     # save results
     cv2.imwrite(save_path+file_name, img)
+
 
 
 def choose_white(computer_cam):
@@ -52,7 +55,9 @@ def choose_white(computer_cam):
     cv2.imshow("window", img)
     cv2.waitKey(1300)
     cv2.destroyWindow("window")
-    save_path = path + "checkers_images/black/"
+    save_path = path + "checkers_images/white/"
+
+
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2
@@ -61,7 +66,7 @@ def choose_white(computer_cam):
     radius1 = min(hh2,ww2)
     xc = 1000  
     yc = 500  
-    # draw filled circles in white on black background as masks
+    # draw filled circles in black on white background as masks
     mask = np.zeros_like(img)
     mask = cv2.circle(mask, (xc,yc), radius1, (255,255,255), -1)
     # put mask into alpha channel of input
@@ -72,7 +77,7 @@ def choose_white(computer_cam):
 def ip_to_matrix(intersections, pawns_location):
     # Initialize a 8x8 binary matrix for board presence (0 for empty, 1 for occupied)
     board_bin = [[0 for _ in range(8)] for _ in range(8)]
-    # Initialize a 8x8 matrix for board colors ("" for empty, "rp" or "bp" for red or black pawns)
+    # Initialize a 8x8 matrix for board colors ("" for empty, "rp" or "bp" for red or white pawns)
     board_color = [["" for _ in range(8)] for _ in range(8)]
     # Lists to hold the unique x and y coordinates of the intersections
     unique_x = []
@@ -109,7 +114,11 @@ def ip_to_matrix(intersections, pawns_location):
     return board_bin, board_color
 
 
-def matrix_to_move(new_board, old_board):
+def matrix_to_move(new_board, old_board, game_start):
+    if game_start and (new_board != old_board):
+        pos = (5, None, None)
+        return pos, game_start
+    game_start = False
     new_board_bin = np.array(new_board[0], dtype=int)
     new_board_color = np.array(new_board[1])
     old_board_bin = np.array(old_board[0], dtype=int)
@@ -125,17 +134,37 @@ def matrix_to_move(new_board, old_board):
     pown_move_to = None
     pown_move_from = None
     # Process the move if one has occurred
-    if move_occurred:
+    if move_occurred: 
         if len(move_to[0]) > 1 and len(move_from[0]) == 0:    # probably hand is covering the bord
             pass
         elif len(move_to[0]) > 1: # Error: Two pieces moved simultaneously
             move = 3
             print("two powns had moved in the same image")               
-        elif len(move_from[0]) == 1:   # A pown moved     
-            move = 1
-            # Convert positions from matrix indices to game positions                                  
-            pown_move_from = [move_from[1][0],move_from[0][0]]
-            pown_move_to = [move_to[1][0],move_to[0][0]]
+        elif len(move_from[0]) == 1: 
+            distans = [abs(move_from[0][0] - move_to[0][0]), abs(move_from[1][0] - move_to[1][0])]
+            if distans[0] == 2 and distans[1] == 2: 
+                eaten_pos=[0,0]
+                if move_from[0] > move_to[0]:
+                    eaten_pos[0] = move_from[0][0] - 1
+                else:
+                    eaten_pos[0] = move_from[0][0] + 1
+                if move_from[1] > move_to[1]:
+                    eaten_pos[1] = move_from[1][0] - 1
+                else:
+                    eaten_pos[1] = move_from[1][0] + 1 
+                if old_board_bin[eaten_pos[0]][eaten_pos[1]] == 1: # A pawn was moved and another was eaten and eatan steel on bord
+                    move = 6
+                    pown_move_from = [move_from[1][0],move_from[0][0]]
+                    pown_move_to = [move_to[1][0],move_to[0][0]]
+                else:    # A pown moved  
+                    move = 7
+            elif distans[0] == 1 and distans[1] == 1:
+                move = 1
+                # Convert positions from matrix indices to game positions                                  
+                pown_move_from = [move_from[1][0],move_from[0][0]]
+                pown_move_to = [move_to[1][0],move_to[0][0]]
+            else:
+                move = 7
         elif len(move_from[0]) == 0:   # Error: A piece was added unexpectedly
             move = 4
             print("someting went wrong, pown added to the game")
@@ -151,14 +180,16 @@ def matrix_to_move(new_board, old_board):
                 if turn_color == pown_color:
                     pown_move_from = pown_pos
                     break
+                if pown_move_from == None:
+                    print("error")
     elif len(move_from[0]) != 0:   #pown had dissapired
         pass
     pos = (move, pown_move_from, pown_move_to)    
-    return pos  # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of error
+    return pos, game_start # pos = (move, (x1,y1), (x2,y2)) 
 
 
 
-def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False):
+def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, game_start, verbose = False):
     num_of_vote = 5
     ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
     break_flag = False
@@ -220,12 +251,10 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
                         new_board[0][i][j] = 1
                         new_board[1][i][j] = board_color[i][j]
 
-    pos  = matrix_to_move(new_board, old_board)
-    # if pos[0] == 0:     # TODO: fix with nadav
-    #     new_board = old_board
+    pos, game_start  = matrix_to_move(new_board, old_board, game_start)
     if pos[0] != 1  and pos[0] != 2:
         new_board = old_board
-    return new_board, pos, curr_holo_mat, reset_flag   # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of erre
+    return new_board, pos, curr_holo_mat, reset_flag, game_start   # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of erre
 
 def cal_turn_test(old_board):
     change = True
