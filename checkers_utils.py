@@ -171,7 +171,7 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
         if not ret:
             raise Exception("Error: Failed to capture frame from checkers camera.")
         else:
-            res, aligned_frame, curr_holo_mat, intersections, pawnas_locs = board_utils.get_locations(frame, ref_img, 
+            res, aligned_frame, curr_holo_mat, intersections, pawnas_locs,_ = board_utils.get_locations(frame, ref_img, 
                                                                                                       curr_holo_mat, 
                                                                                                       reset_flag,
                                                                                                      verbose=False)
@@ -216,13 +216,15 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, verbose = False
             for j in range(8):
                 if board_bin[i][j] == 1:
                     vote_bin_matrix[i][j] += 1
-                    if vote_bin_matrix[i][j] > 2:
+                    if vote_bin_matrix[i][j] > num_of_vote//2:
                         new_board[0][i][j] = 1
                         new_board[1][i][j] = board_color[i][j]
 
     pos  = matrix_to_move(new_board, old_board)
     # if pos[0] == 0:     # TODO: fix with nadav
     #     new_board = old_board
+    if pos[0] != 1  and pos[0] != 2:
+        new_board = old_board
     return new_board, pos, curr_holo_mat, reset_flag   # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of erre
 
 def cal_turn_test(old_board):
