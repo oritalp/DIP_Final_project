@@ -71,7 +71,8 @@ class Checkers:
 
     def main(self, window_width, window_height):
         game_start = True
-        error_dict = {"0": "waiting", "1":"", "2":"", "3":"two powns had moved in the same image", "4": "someting went wrong, pown added to the game", "5": "The board must be initialized"}
+        pos = (0, None, None)
+        error_dict = {"0": "waiting", "1":"", "2":"", "3":"two powns had moved in the same image", "4": "someting went wrong, pown added to the game", "5": "The board must be initialized", "6": "The pawn that was eaten was not taken off the board", "7": "Invalid move - return the board to the previous position"}
         checkers_cam = cv2.VideoCapture(checkers_cam_num) 
         quit_flag = False #Ori added for debugging purposes only
         board_size = 8
@@ -109,9 +110,7 @@ class Checkers:
                     self.running = False
 
             else:
-                if legal_turn:
-                    pass
-                old_board = new_board if legal_turn else old_board
+                old_board = new_board if legal_turn and (pos[0] == 1 or pos[0] == 2 or pos[0] == 0) else old_board
                 new_board, pos, curr_holo_mat, reset_flag, game_start = checkers_utils.cal_turn(old_board, curr_holo_mat, reset_flag,
                                                                                checkers_cam, game_start, verbose=False)
                 if quit_flag:
@@ -121,14 +120,14 @@ class Checkers:
                         x_event = pos[1][0]
                         y_event = pos[1][1]
                         ip_event = (int(x_event)*80+5, int(y_event)*80+5)           # selecting a pawn
-                    legal_turn, error_message = board.handle_click(ip_event, legal_turn)    # Update legal_turn based on the move legality
-                    if not legal_turn:
-                        self.display_illegal_move_message(error_message)        # Display the message if the move was illegal
-                        continue                                                # Optionally skip the rest of the loop if you want to wait for a legal move
+                        legal_turn, error_message = board.handle_click(ip_event, legal_turn)    # Update legal_turn based on the move legality
+                        if not legal_turn:
+                            self.display_illegal_move_message(error_message)        # Display the message if the move was illegal
+                            continue                                                # Optionally skip the rest of the loop if you want to wait for a legal move
                                                                                 # If the move was legal, proceed with the game update
-                    self._draw(board)
-                    self.FPS.tick(60)
-                    game.check_jump(board)
+                        self._draw(board)
+                        self.FPS.tick(60)
+                        game.check_jump(board)
                     x_event = pos[2][0]
                     y_event = pos[2][1]
                     ip_event = (int(x_event)*80+5, int(y_event)*80+5)               # moving the selected pawn

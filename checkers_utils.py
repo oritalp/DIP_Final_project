@@ -134,17 +134,37 @@ def matrix_to_move(new_board, old_board, game_start):
     pown_move_to = None
     pown_move_from = None
     # Process the move if one has occurred
-    if move_occurred:
+    if move_occurred: 
         if len(move_to[0]) > 1 and len(move_from[0]) == 0:    # probably hand is covering the bord
             pass
         elif len(move_to[0]) > 1: # Error: Two pieces moved simultaneously
             move = 3
             print("two powns had moved in the same image")               
-        elif len(move_from[0]) == 1:   # A pown moved     
-            move = 1
-            # Convert positions from matrix indices to game positions                                  
-            pown_move_from = [move_from[1][0],move_from[0][0]]
-            pown_move_to = [move_to[1][0],move_to[0][0]]
+        elif len(move_from[0]) == 1: 
+            distans = [abs(move_from[0][0] - move_to[0][0]), abs(move_from[1][0] - move_to[1][0])]
+            if distans[0] == 2 and distans[1] == 2: 
+                eaten_pos=[0,0]
+                if move_from[0] > move_to[0]:
+                    eaten_pos[0] = move_from[0][0] - 1
+                else:
+                    eaten_pos[0] = move_from[0][0] + 1
+                if move_from[1] > move_to[1]:
+                    eaten_pos[1] = move_from[1][0] - 1
+                else:
+                    eaten_pos[1] = move_from[1][0] + 1 
+                if old_board_bin[eaten_pos[0]][eaten_pos[1]] == 1: # A pawn was moved and another was eaten and eatan steel on bord
+                    move = 6
+                    pown_move_from = [move_from[1][0],move_from[0][0]]
+                    pown_move_to = [move_to[1][0],move_to[0][0]]
+                else:    # A pown moved  
+                    move = 7
+            elif distans[0] == 1 and distans[1] == 1:
+                move = 1
+                # Convert positions from matrix indices to game positions                                  
+                pown_move_from = [move_from[1][0],move_from[0][0]]
+                pown_move_to = [move_to[1][0],move_to[0][0]]
+            else:
+                move = 7
         elif len(move_from[0]) == 0:   # Error: A piece was added unexpectedly
             move = 4
             print("someting went wrong, pown added to the game")
@@ -160,6 +180,8 @@ def matrix_to_move(new_board, old_board, game_start):
                 if turn_color == pown_color:
                     pown_move_from = pown_pos
                     break
+                if pown_move_from == None:
+                    print("error")
     elif len(move_from[0]) != 0:   #pown had dissapired
         pass
     pos = (move, pown_move_from, pown_move_to)    
