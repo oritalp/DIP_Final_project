@@ -22,10 +22,12 @@ def choose_red(computer_cam):
     alpha_channel = np.ones(R.shape, dtype=R.dtype) * 255  # Fully opaque. Adjust if you want transparency.
     # Merge the B, G, R, and alpha channels into one BGRA image
     img = cv2.merge((B, G, R_strengthened, alpha_channel))
+
     cv2.imshow("window", img)
     cv2.waitKey(1300)
     cv2.destroyWindow("window")
     save_path = path + "checkers_images/red/"
+
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2
@@ -43,6 +45,7 @@ def choose_red(computer_cam):
     cv2.imwrite(save_path+file_name, img)
 
 
+
 def choose_white(computer_cam):
     ret, frame = computer_cam.read()
     if ret:
@@ -53,6 +56,8 @@ def choose_white(computer_cam):
     cv2.waitKey(1300)
     cv2.destroyWindow("window")
     save_path = path + "checkers_images/black/"
+
+
     file_name = "player-pawn.png"
     hh, ww = img.shape[:2]
     hh2 = hh // 2
