@@ -25,7 +25,7 @@ class Camera_API:
             self.cam_xy = cv2.VideoCapture(self.camara_xy_path)
             #self.cam_z = cv2.VideoCapture(self.camara_yz_path)
 
-    def stream_video(self, ref_img, camera = "xy", save_frame = "new_pic", verbose = False):
+    def stream_video(self, ref_img, camera = "xy", save_frame = "new_pic", verbose = False, record = False):
         """Stream video from the camera"""
         if camera == "xy" and self.checkers_cam.isOpened():
             cap = self.checkers_cam
@@ -35,6 +35,14 @@ class Camera_API:
         reset_flag = 0
         curr_holo_mat = None
         counter = 0
+
+        if record:
+            size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+			int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+ 
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter(save_frame + "_video" + '.avi', fourcc, 30, size)
+
         while True:
             ret, frame = cap.read()
             # print(f"reset_flag: {reset_flag}")
@@ -46,6 +54,7 @@ class Camera_API:
                     cv2.putText(frame, "Couldn't find the board's inner corners", (10, 30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
                     cv2.imshow('frame', frame)
+                    out.write(frame)
                     #write text on the frame of "couldn't align the frame"
 
                     reset_flag = 1
@@ -54,6 +63,7 @@ class Camera_API:
                 else:
                     frame = aligned_frame
                     cv2.imshow('frame', frame)
+                    out.write(frame)
                     reset_flag = 0
 
                     
@@ -74,7 +84,39 @@ class Camera_API:
                 print(f"Error: Failed to capture frame from camera {camera}.")
                 break
         cap.release()
+        out.release()
         cv2.destroyAllWindows()
+
+    def record_video(self, video_name, camera = "xy"):
+        """Record video from the camera"""
+        if camera == "xy" and self.checkers_cam.isOpened():
+            cap = self.checkers_cam
+        elif camera == "z" and self.computer_cam.isOpened():
+            cap = self.computer_cam
+        else:
+            print("Error: Camera is not opened.")
+            return
+
+
+        # Define the codec and create VideoWriter object
+        size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+			int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+ 
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        out = cv2.VideoWriter(video_name + '.mp4', fourcc, 30, size)
+
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if ret:
+                out.write(frame)
+                cv2.imshow('frame', frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):  # Press 'q' to exit
+                    break
+
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
+
 
 
     def save_frame(self, frame, save_name='frame'):
