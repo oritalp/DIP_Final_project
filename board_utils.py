@@ -402,7 +402,7 @@ if __name__ == "__main__":
 
 
     camera = image_sample.Camera_API()
-    # camera.stream_video(ref_img, camera="z", save_frame="hand_pics_2", verbose=True)
+    # camera.stream_video(ref_img, camera="xy", save_frame="video_for_report_1", verbose=True, record=True)
     camera.record_video(video_name="Ori's check")
     
 

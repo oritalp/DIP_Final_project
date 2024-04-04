@@ -39,9 +39,9 @@ class Camera_API:
         if record:
             size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
 			int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
- 
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter(save_frame + "_video" + '.avi', fourcc, 30, size)
+    
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            out = cv2.VideoWriter(save_frame + "_video" + '.avi', fourcc, 30, size)
 
         while True:
             ret, frame = cap.read()
@@ -54,7 +54,8 @@ class Camera_API:
                     cv2.putText(frame, "Couldn't find the board's inner corners", (10, 30),
                                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 1, cv2.LINE_AA)
                     cv2.imshow('frame', frame)
-                    out.write(frame)
+                    if record:
+                        out.write(frame)
                     #write text on the frame of "couldn't align the frame"
 
                     reset_flag = 1
@@ -63,7 +64,8 @@ class Camera_API:
                 else:
                     frame = aligned_frame
                     cv2.imshow('frame', frame)
-                    out.write(frame)
+                    if record:
+                        out.write(frame)
                     reset_flag = 0
 
                     
@@ -84,7 +86,8 @@ class Camera_API:
                 print(f"Error: Failed to capture frame from camera {camera}.")
                 break
         cap.release()
-        out.release()
+        if record:
+            out.release()
         cv2.destroyAllWindows()
 
     def record_video(self, video_name, camera = "xy"):
