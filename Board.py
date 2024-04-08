@@ -78,16 +78,23 @@ class Board:
                     self.turn = 'red' if self.turn == 'white' else 'white'
                     return(legal_turn, "All fine capara")
         elif clicked_tile.occupying_piece is not None:
-            print("very weird, look at handle_click func")
-            return(legal_turn, "sanity check")
+            print("option to eat other pawn")
             if clicked_tile.occupying_piece.color == self.turn:
                 self.selected_piece = clicked_tile.occupying_piece
-                legal_turn=False
+                legal_turn=True
                 return(legal_turn, "very weird, something went wrong")
-            legal_turn = False
+            legal_turn = True
             return(legal_turn,"very weird, something went wrong")
+        elif self.selected_piece is not None:
+            if self.selected_piece.pos == [x,y]:
+                legal_turn = True
+                return(legal_turn, "all fine")
+            else:
+                legal_turn = False
+                return(legal_turn, "player has to play the default move")
         else:
-            return(legal_turn, "need to check this")
+            print("check handle click, there is another condition")
+            return(legal_turn,"")
 
     def draw(self, display):
         if self.selected_piece is not None:

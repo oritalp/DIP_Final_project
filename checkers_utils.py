@@ -139,7 +139,7 @@ def matrix_to_move(new_board, old_board, game_start):
             pass
         elif len(move_to[0]) > 1: # Error: Two pieces moved simultaneously
             move = 3
-            print("two powns had moved in the same image")               
+            print("two powns had moved in the same image")           
         elif len(move_from[0]) == 1: 
             distans = [abs(move_from[0][0] - move_to[0][0]), abs(move_from[1][0] - move_to[1][0])]
             if distans[0] == 2 and distans[1] == 2: 
@@ -251,7 +251,7 @@ def cal_turn(old_board, curr_holo_mat, reset_flag, checkers_cam, game_start, ver
                         new_board[0][i][j] = 1
                         new_board[1][i][j] = board_color[i][j]
 
-    pos, game_start  = matrix_to_move(new_board, old_board, game_start)
+    pos, game_start = matrix_to_move(new_board, old_board, game_start)
     if pos[0] != 1  and pos[0] != 2:
         new_board = old_board
     return new_board, pos, curr_holo_mat, reset_flag, game_start   # pos = (move, (x1,y1), (x2,y2)) - move = 0 - no move, 1 - pawn had moved, 2 - a pawn had move and eat, 3 and 4 some kind of erre

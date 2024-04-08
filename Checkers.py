@@ -52,6 +52,10 @@ class Checkers:
         pygame.time.wait(2000)  # Display the message for 2 seconds
 
     def display_move_message(self, from_pos, to_pos, player):
+        if player == "white":
+            player = "red"
+        elif player == "red":
+            player = "whtie"
         message = f"{player} tile Moved from {from_pos} to {to_pos}"
         font = pygame.font.SysFont(None, 36)
         text_surface = font.render(message, True, (255, 255, 255))  # White text for better visibility
