@@ -7,7 +7,7 @@ import time
 from Path import path
 
 
-def compute_holo_mat(img_to_al, ref_img, max_features=1000, keep_percent=0.8, num_ignore_first=0):
+def compute_holo_mat(img_to_al, ref_img, max_features=1000, keep_percent=0.8, num_ignore_first=0,verbose=False):
     """
     Compute the homography matrix for aligning two images using feature matching.
 
@@ -55,6 +55,11 @@ def compute_holo_mat(img_to_al, ref_img, max_features=1000, keep_percent=0.8, nu
     for i, match in enumerate(matches):
         points1[i, :] = kp1[match.queryIdx].pt
         points2[i, :] = kp2[match.trainIdx].pt
+
+    if verbose:
+        plt.imshow(cv2.cvtColor(img_matches, cv2.COLOR_BGR2RGB))
+        plt.title("ORB Feature Matching")
+        plt.show()
 
     # Find the homography
     try:
@@ -139,6 +144,23 @@ def get_intersections(res_align, img, max_lines=14, crop_width_left=40, crop_wid
         if lines is None:
             lines = []
         lines = lines[:max_lines]
+        if verbose:
+            img_crp_copy = cv2.cvtColor(img_crp, cv2.COLOR_BGR2RGB)
+            for line in lines:
+                rho, theta = line[0]
+                a = np.cos(theta)
+                b = np.sin(theta)
+                x0 = a * rho
+                y0 = b * rho
+                x1 = int(x0 + 1000 * (-b))
+                y1 = int(y0 + 1000 * (a))
+                x2 = int(x0 - 1000 * (-b))
+                y2 = int(y0 - 1000 * (a))
+                cv2.line(img_crp_copy, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            plt.imshow(img_crp_copy)
+            plt.title('Detected Lines')
+            plt.show()
+
         # Find the intersections of the lines[:max_lines]
         vertical_lines = [line for line in lines if np.abs(line[0][1]) < 0.1]
         horizontal_lines = [line for line in lines if np.abs(line[0][1] - np.pi/2) < 0.1]
@@ -387,7 +409,8 @@ def check_grid_spacing(intersections, spacing_tol=10, tol_same_point=8, verbose=
     return True
 
 if __name__ == "__main__":
-    img_to_al = cv2.imread(path + "images_taken/hand_pics_0.jpg")
+    path = "" # line to Remove in shelli's environment
+    img_to_al = cv2.imread(path + "images_taken/clean_pics_0.jpg")
     ref_img = cv2.imread(path + "images_taken/new_alligned.jpg")
 
     # res, h = compute_holo_mat(img_to_al, ref_img)
@@ -400,13 +423,40 @@ if __name__ == "__main__":
     # else:
     #     print("Error in alignment")
 
-
     camera = image_sample.Camera_API()
-    # camera.stream_video(ref_img, camera="xy", save_frame="video_for_report_1", verbose=True, record=True)
-    camera.record_video(video_name="Ori's check")
-    
+    camera.stream_video(ref_img, camera="z", save_frame="clean_pics", verbose=True)
 
 
-    
-    
+    min_desc = 100
+    max_desc = 1000
+    keep_percent_min = 0.2
+    keep_percent_max = 0.8
+    crop_width_left = 40
+    crop_width_right = 60
+    crop_height_bottom = 80
+    crop_height_top = 65
+
+    # for num_desc in range(min_desc, max_desc, 200):
+    #     for keep_percent in np.arange(keep_percent_min, keep_percent_max, 0.2):
+    #         res_holo, new_holo_mat = compute_holo_mat(img_to_al, ref_img, max_features=num_desc,
+    #                                                     keep_percent=keep_percent)
+    #         res_align, aligned_img = align_board(img_to_al, ref_img, res_holo, new_holo_mat)
+    #         if res_align ==0:
+    #             print(f"num_desc: {num_desc}, keep_percent: {keep_percent}")
+    #             cv2.imshow("aligned", aligned_img)
+    #             cv2.waitKey(0)
+
+    #700 on 0.8
+
+    # res_holo, h = compute_holo_mat(img_to_al, ref_img, max_features=700, keep_percent=0.8)
+    # res_align, aligned_img = align_board(img_to_al, ref_img, res_holo, h)
+    # intersections = get_intersections(res_align, aligned_img, crop_width_left=crop_width_left,
+    #                                   crop_width_right=crop_width_right, crop_height_bottom=crop_height_bottom,
+    #                                   crop_height_top=crop_height_top, verbose=True, hough_threshold=100)
+
+    # plt.imshow(cv2.cvtColor(aligned_img, cv2.COLOR_BGR2RGB))
+    # plt.title("Summed up")
+    # plt.show()
+
+
 

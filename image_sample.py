@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import board_utils
 
 class Camera_API:
-    def __init__(self,video=False):
+    def __init__(self,video=False, video_name = "Ori's check.mp4"):
         current_script_dir = os.path.dirname(os.path.abspath(__file__))
 
         # Initialize camera
@@ -17,12 +17,12 @@ class Camera_API:
 
         else:
             print("using video")
-            self.camara_xy_path = os.path.join(current_script_dir, "video", "vid1xy.mp4")
+            self.camara_xy_path = os.path.join(current_script_dir, video_name)
             #self.camara_yz_path = os.path.join(current_script_dir, "video", "vid1z.mp4")
 
             #self.camara_xy_path = 1
             #self.camara_yz_path = 2
-            self.cam_xy = cv2.VideoCapture(self.camara_xy_path)
+            self.checkers_cam = cv2.VideoCapture(self.camara_xy_path)
             #self.cam_z = cv2.VideoCapture(self.camara_yz_path)
 
     def stream_video(self, ref_img, camera = "xy", save_frame = "new_pic", verbose = False, record = False):
@@ -40,11 +40,12 @@ class Camera_API:
             size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
 			int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
     
-            fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            out = cv2.VideoWriter(save_frame + "_video" + '.avi', fourcc, 30, size)
+            fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+            out = cv2.VideoWriter(save_frame + "_video" + '.mp4', fourcc, 30, size)
 
         while True:
             ret, frame = cap.read()
+            raw_frame = frame.copy()
             # print(f"reset_flag: {reset_flag}")
             # print(f"current res is: {res}")
             if ret:
@@ -72,7 +73,7 @@ class Camera_API:
                 if cv2.waitKey(1) & 0xFF == ord('q'): # Press 'q' to exit
                     break
                 elif cv2.waitKey(1) & 0xFF == ord('s'): #press 's' to save frame
-                    self.save_frame(aligned_img_clean, save_frame +  "_" + str(counter))
+                    self.save_frame(raw_frame, save_frame +  "_" + str(counter))
                     print(f"Frame saved as {save_frame + '_' + str(counter)}.jpg")
                     counter += 1
                 elif cv2.waitKey(1) & 0xFF == ord('r'):
