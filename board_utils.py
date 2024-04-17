@@ -423,8 +423,8 @@ if __name__ == "__main__":
     # else:
     #     print("Error in alignment")
 
-    # camera = image_sample.Camera_API()
-    # camera.stream_video(ref_img, camera="z", save_frame="clean_pics", verbose=True)
+    camera = image_sample.Camera_API()
+    camera.stream_video(ref_img, camera="z", save_frame="clean_pics", verbose=True)
 
 
     min_desc = 100
@@ -448,15 +448,15 @@ if __name__ == "__main__":
 
     #700 on 0.8
 
-    res_holo, h = compute_holo_mat(img_to_al, ref_img, max_features=700, keep_percent=0.8)
-    res_align, aligned_img = align_board(img_to_al, ref_img, res_holo, h)
-    intersections = get_intersections(res_align, aligned_img, crop_width_left=crop_width_left,
-                                      crop_width_right=crop_width_right, crop_height_bottom=crop_height_bottom,
-                                      crop_height_top=crop_height_top, verbose=True, hough_threshold=100)
+    # res_holo, h = compute_holo_mat(img_to_al, ref_img, max_features=700, keep_percent=0.8)
+    # res_align, aligned_img = align_board(img_to_al, ref_img, res_holo, h)
+    # intersections = get_intersections(res_align, aligned_img, crop_width_left=crop_width_left,
+    #                                   crop_width_right=crop_width_right, crop_height_bottom=crop_height_bottom,
+    #                                   crop_height_top=crop_height_top, verbose=True, hough_threshold=100)
 
-    plt.imshow(cv2.cvtColor(aligned_img, cv2.COLOR_BGR2RGB))
-    plt.title("Summed up")
-    plt.show()
+    # plt.imshow(cv2.cvtColor(aligned_img, cv2.COLOR_BGR2RGB))
+    # plt.title("Summed up")
+    # plt.show()
 
 
 
